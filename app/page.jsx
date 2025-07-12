@@ -1202,10 +1202,9 @@ export default function Home() {
             <div className="col-span-1 lg:col-span-2">
               <Link className="flex items-center" href="/">
                 <div className="flex items-center space-x-2">
-                  <div className="relative h-10 w-10">
-                    <Image src="/images/sms2flow-logo.png" alt="sms2flow Logo" fill style={{ objectFit: "contain" }} />
+                  <div className="relative h-[100px] w-[100px]">
+                    <Image src="/images/logo.webp" alt="sms2flow Logo" fill style={{ objectFit: "contain" }} />
                   </div>
-                  <span className="text-xl font-bold text-slate-900">sms2flow</span>
                 </div>
               </Link>
               <p className="mt-4 text-slate-600 text-sm">
