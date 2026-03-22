@@ -1293,14 +1293,14 @@ export default function Home() {
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-sm text-slate-600 hover:text-[#08f08f]">
+                  <Link href="/privacy" className="text-sm text-slate-600 hover:text-[#08f08f]">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-sm text-slate-600 hover:text-[#08f08f]">
+                  <Link href="/terms" className="text-sm text-slate-600 hover:text-[#08f08f]">
                     Terms of Service
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a href="#" className="text-sm text-slate-600 hover:text-[#08f08f]">

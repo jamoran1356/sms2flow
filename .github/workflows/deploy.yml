@@ -1,0 +1,51 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Deploy on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ vars.VPS_IP || secrets.VPS_IP }}
+          username: ${{ vars.VPS_USER || secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY || vars.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+
+            APP_DIR="/srv/apps/sms2flow}"
+            BRANCH="main"
+
+            echo "Deploying branch ${BRANCH} in ${APP_DIR}"
+
+            if [ ! -d "${APP_DIR}/.git" ]; then
+              echo "ERROR: ${APP_DIR} does not contain a git repository."
+              echo "Set VPS_APP_PATH as a repository variable/secret with the app path on server."
+              exit 1
+            fi
+
+            cd "${APP_DIR}"
+
+            git fetch --all --prune
+            git checkout "${BRANCH}"
+            git pull origin "${BRANCH}"
+
+            docker compose down
+            docker compose up -d --build --remove-orphans
+
+            docker image prune -f
+        
