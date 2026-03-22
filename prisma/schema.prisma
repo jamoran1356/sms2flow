@@ -1,0 +1,306 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  PREMIUM
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum TransactionType {
+  TRANSFER
+  DEPOSIT
+  WITHDRAWAL
+  SMS_PAYMENT
+  STAKING_REWARD
+  FEE
+}
+
+enum NetworkType {
+  MAINNET
+  TESTNET
+  EMULATOR
+}
+
+enum StakingStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  image          String?
+  phone          String?   @unique
+  hashedPassword String?
+  role           Role      @default(USER)
+  isActive       Boolean   @default(true)
+  isVerified     Boolean   @default(false)
+  twoFactorEnabled Boolean @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts     Account[]
+  sessions     Session[]
+  wallets      Wallet[]
+  transactionsSent     Transaction[] @relation("SenderTransactions")
+  transactionsReceived Transaction[] @relation("ReceiverTransactions")
+  stakingPositions     StakingPosition[]
+  smsMessages          SmsMessage[]
+  customers            Customer[]
+  contracts            Contract[]
+  notifications        Notification[]
+
+  @@index([email])
+  @@index([phone])
+}
+
+model Wallet {
+  id           String   @id @default(cuid())
+  userId       String
+  address      String   @unique
+  network      NetworkType @default(TESTNET)
+  balance      Decimal  @default(0) @db.Decimal(20, 8)
+  isDefault    Boolean  @default(false)
+  privateKey   String?  @db.Text // encrypted
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactionsFrom Transaction[] @relation("FromWallet")
+  transactionsTo   Transaction[] @relation("ToWallet")
+  contracts    Contract[]
+
+  @@index([userId])
+  @@index([address])
+}
+
+model Transaction {
+  id          String            @id @default(cuid())
+  senderId    String?
+  receiverId  String?
+  fromWalletId String?
+  toWalletId  String?
+  type        TransactionType
+  amount      Decimal           @db.Decimal(20, 8)
+  fee         Decimal           @default(0) @db.Decimal(20, 8)
+  currency    String            @default("FLOW")
+  status      TransactionStatus @default(PENDING)
+  txHash      String?           @unique
+  network     NetworkType       @default(TESTNET)
+  description String?
+  metadata    Json?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  sender     User?   @relation("SenderTransactions", fields: [senderId], references: [id])
+  receiver   User?   @relation("ReceiverTransactions", fields: [receiverId], references: [id])
+  fromWallet Wallet? @relation("FromWallet", fields: [fromWalletId], references: [id])
+  toWallet   Wallet? @relation("ToWallet", fields: [toWalletId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model StakingPool {
+  id             String   @id @default(cuid())
+  name           String
+  token          String   @default("FLOW")
+  apyRate        Decimal  @db.Decimal(5, 2)
+  minStake       Decimal  @db.Decimal(20, 8)
+  maxStake       Decimal? @db.Decimal(20, 8)
+  totalStaked    Decimal  @default(0) @db.Decimal(20, 8)
+  participants   Int      @default(0)
+  lockPeriodDays Int      @default(30)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  positions StakingPosition[]
+}
+
+model StakingPosition {
+  id          String        @id @default(cuid())
+  userId      String
+  poolId      String
+  amount      Decimal       @db.Decimal(20, 8)
+  rewards     Decimal       @default(0) @db.Decimal(20, 8)
+  status      StakingStatus @default(ACTIVE)
+  stakedAt    DateTime      @default(now())
+  unstakedAt  DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pool StakingPool @relation(fields: [poolId], references: [id])
+
+  @@index([userId])
+  @@index([poolId])
+}
+
+model SmsMessage {
+  id          String   @id @default(cuid())
+  userId      String?
+  fromPhone   String
+  toPhone     String
+  message     String   @db.Text
+  command     String?
+  amount      Decimal? @db.Decimal(20, 8)
+  status      String   @default("received")
+  processedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([fromPhone])
+  @@index([userId])
+}
+
+model Customer {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  phone      String
+  email      String?
+  address    String?
+  notes      String?  @db.Text
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([phone])
+}
+
+model Contract {
+  id          String   @id @default(cuid())
+  userId      String
+  walletId    String
+  name        String
+  address     String?
+  network     NetworkType @default(TESTNET)
+  balance     Decimal  @default(0) @db.Decimal(20, 8)
+  isDeployed  Boolean  @default(false)
+  abi         Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallet Wallet @relation(fields: [walletId], references: [id])
+
+  @@index([userId])
+}
+
+model NetworkConfig {
+  id          String      @id @default(cuid())
+  name        String
+  network     NetworkType @unique
+  rpcUrl      String
+  explorerUrl String?
+  isActive    Boolean     @default(false)
+  chainId     String?
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  group     String   @default("general")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([group])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String   @db.Text
+  type      String   @default("info")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}

@@ -34,9 +34,9 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2" onClick={closeMenu}>
-            <div className="relative h-[150px] w-[150px]">
+            <div className="relative h-8 w-8">
               <Image
-                src="/images/logo.webp"
+                src="/images/sms2flow-logo.png"
                 alt="sms2flow Logo"
                 fill
                 style={{ objectFit: "contain" }}

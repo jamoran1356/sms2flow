@@ -1,0 +1,116 @@
+import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import prisma from "@/lib/prisma"
+
+// GET staking pools and user positions
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const [pools, positions] = await Promise.all([
+      prisma.stakingPool.findMany({
+        where: { isActive: true },
+        orderBy: { apyRate: "desc" },
+      }),
+      prisma.stakingPosition.findMany({
+        where: { userId: session.user.id },
+        include: { pool: true },
+        orderBy: { createdAt: "desc" },
+      }),
+    ])
+
+    const totalStaked = positions
+      .filter((p) => p.status === "ACTIVE")
+      .reduce((sum, p) => sum + parseFloat(p.amount), 0)
+
+    const totalRewards = positions.reduce(
+      (sum, p) => sum + parseFloat(p.rewards),
+      0
+    )
+
+    return NextResponse.json({
+      pools,
+      positions,
+      totalStaked,
+      totalRewards,
+    })
+  } catch (error) {
+    console.error("Staking error:", error)
+    return NextResponse.json({ error: "Error interno" }, { status: 500 })
+  }
+}
+
+// POST - stake tokens
+export async function POST(request) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { poolId, amount } = body
+
+    if (!poolId || !amount || amount <= 0) {
+      return NextResponse.json({ error: "Pool y monto son requeridos" }, { status: 400 })
+    }
+
+    const pool = await prisma.stakingPool.findUnique({ where: { id: poolId } })
+    if (!pool || !pool.isActive) {
+      return NextResponse.json({ error: "Pool no disponible" }, { status: 400 })
+    }
+
+    if (amount < parseFloat(pool.minStake)) {
+      return NextResponse.json(
+        { error: `Monto mínimo: ${pool.minStake} ${pool.token}` },
+        { status: 400 }
+      )
+    }
+
+    // Check wallet balance
+    const wallet = await prisma.wallet.findFirst({
+      where: { userId: session.user.id, isDefault: true },
+    })
+
+    if (!wallet || parseFloat(wallet.balance) < amount) {
+      return NextResponse.json({ error: "Saldo insuficiente" }, { status: 400 })
+    }
+
+    const position = await prisma.$transaction(async (tx) => {
+      // Deduct from wallet
+      await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: { decrement: amount } },
+      })
+
+      // Update pool stats
+      await tx.stakingPool.update({
+        where: { id: poolId },
+        data: {
+          totalStaked: { increment: amount },
+          participants: { increment: 1 },
+        },
+      })
+
+      // Create position
+      return tx.stakingPosition.create({
+        data: {
+          userId: session.user.id,
+          poolId,
+          amount,
+          status: "ACTIVE",
+        },
+        include: { pool: true },
+      })
+    })
+
+    return NextResponse.json({ position }, { status: 201 })
+  } catch (error) {
+    console.error("Staking error:", error)
+    return NextResponse.json({ error: "Error en staking" }, { status: 500 })
+  }
+}
