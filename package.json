@@ -2,6 +2,9 @@
   "name": "sms2flow",
   "version": "1.0.0",
   "private": true,
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "scripts": {
     "build": "prisma generate && next build",
     "dev": "next dev",
