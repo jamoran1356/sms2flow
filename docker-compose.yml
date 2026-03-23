@@ -28,8 +28,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.sms2flow.rule=Host(`sms2flow.com`,`www.sms2flow.com`)"
-      - "traefik.http.routers.sms2flow-web.rule=Host(`sms2flow.com`,`www.sms2flow.com`)"
+      - "traefik.http.routers.sms2flow.rule=Host(`sms2flow.com`) || Host(`www.sms2flow.com`)"
+      - "traefik.http.routers.sms2flow-web.rule=Host(`sms2flow.com`) || Host(`www.sms2flow.com`)"
       - "traefik.http.routers.sms2flow-web.entrypoints=web"
       - "traefik.http.routers.sms2flow-web.middlewares=sms2flow-https"
       - "traefik.http.middlewares.sms2flow-https.redirectscheme.scheme=https"
@@ -38,7 +38,7 @@ services:
       - "traefik.http.routers.sms2flow.tls.certresolver=le"
       - "traefik.http.services.sms2flow.loadbalancer.server.port=3000"
     environment:
-      DATABASE_URL: "${DATABASE_URL_DOCKER:-postgresql://sms2flow:${DATABASE_PASS}@db:5432/sms2flow?schema=public}"
+      DATABASE_URL: "postgresql://sms2flow:${DATABASE_PASS}@db:5432/sms2flow?schema=public"
       NEXTAUTH_URL: "https://sms2flow.com"
       NEXTAUTH_SECRET: "${NEXTAUTH_SECRET}"
       GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
