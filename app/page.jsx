@@ -311,7 +311,7 @@ export default function Home() {
                                   <div className="text-xs text-slate-500">5 hours ago</div>
                                 </div>
                               </div>
-                              <div className="text-green-500">+0.15 FLOW</div>
+                              <div className="text-green-500">+0.17 FLOW</div>
                             </div>
                           </div>
                         </div>
