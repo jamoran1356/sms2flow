@@ -26,7 +26,12 @@ export default function AdminDashboard() {
         const res = await fetch("/api/admin/dashboard")
         if (res.ok) {
           const json = await res.json()
-          setData(json)
+          setData({
+            ...json.stats,
+            recentTransactions: json.recentTransactions,
+            recentUsers: json.recentUsers,
+            networkConfigs: json.networkConfigs,
+          })
         }
       } catch (e) {
         console.error("Error fetching admin dashboard:", e)

@@ -108,12 +108,14 @@ export default function AdminTransactionsPage() {
       </div>
 
       <div className="flex items-center justify-between">
-        <TabsList>
-          <TabsTrigger value="all" onClick={() => setFilterType("all")} data-state={filterType === "all" ? "active" : ""}>Todas</TabsTrigger>
-          <TabsTrigger value="SMS_PAYMENT" onClick={() => setFilterType("SMS_PAYMENT")} data-state={filterType === "SMS_PAYMENT" ? "active" : ""}>SMS</TabsTrigger>
-          <TabsTrigger value="TRANSFER" onClick={() => setFilterType("TRANSFER")} data-state={filterType === "TRANSFER" ? "active" : ""}>Transferencias</TabsTrigger>
-          <TabsTrigger value="DEPOSIT" onClick={() => setFilterType("DEPOSIT")} data-state={filterType === "DEPOSIT" ? "active" : ""}>Depósitos</TabsTrigger>
-        </TabsList>
+        <Tabs value={filterType} onValueChange={setFilterType}>
+          <TabsList>
+            <TabsTrigger value="all">Todas</TabsTrigger>
+            <TabsTrigger value="SMS_PAYMENT">SMS</TabsTrigger>
+            <TabsTrigger value="TRANSFER">Transferencias</TabsTrigger>
+            <TabsTrigger value="DEPOSIT">Depósitos</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
           <Input placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-8 w-[250px]" />
