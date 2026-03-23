@@ -20,18 +20,14 @@ jobs:
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ vars.VPS_IP || secrets.VPS_IP }}
-          username: ${{ vars.VPS_USER || secrets.VPS_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY || vars.SSH_PRIVATE_KEY }}
-          port: ${{ vars.VPS_SSH_PORT || secrets.VPS_SSH_PORT || 22 }}
-          passphrase: ${{ secrets.SSH_KEY_PASSPHRASE || vars.SSH_KEY_PASSPHRASE }}
-          script_stop: true
-          envs: GITHUB_REF_NAME,VPS_APP_PATH
+          host: ${{secrets.VPS_IP }}
+          username: ${{secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY}}
           script: |
             set -e
 
-            APP_DIR="${VPS_APP_PATH:-/srv/apps/sms2flow}"
-            BRANCH="${GITHUB_REF_NAME:-main}"
+            APP_DIR="/srv/apps/sms2flow"
+            BRANCH="main"
 
             echo "Deploying branch ${BRANCH} in ${APP_DIR}"
 
@@ -51,6 +47,4 @@ jobs:
             docker compose up -d --build --remove-orphans
 
             docker image prune -f
-        env:
-          VPS_APP_PATH: ${{ vars.VPS_APP_PATH || secrets.VPS_APP_PATH }}
         
