@@ -20,9 +20,11 @@ jobs:
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{secrets.VPS_IP }}
-          username: ${{secrets.VPS_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY}}
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script_stop: true
           script: |
             set -e
 
@@ -33,7 +35,6 @@ jobs:
 
             if [ ! -d "${APP_DIR}/.git" ]; then
               echo "ERROR: ${APP_DIR} does not contain a git repository."
-              echo "Set VPS_APP_PATH as a repository variable/secret with the app path on server."
               exit 1
             fi
 
@@ -41,10 +42,9 @@ jobs:
 
             git fetch --all --prune
             git checkout "${BRANCH}"
-            git pull origin "${BRANCH}"
+            git pull --rebase origin "${BRANCH}"
 
             docker compose down
             docker compose up -d --build --remove-orphans
 
             docker image prune -f
-        
