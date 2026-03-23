@@ -33,14 +33,14 @@ const useWalletConnection = () => {
       if (typeof window === "undefined") return
 
       // Check if wallet extensions exist before trying to connect
-      if (!window.ethereum) {
+      if (!window.FLOWereum) {
         console.log("No wallet detected. Please install a wallet extension.")
         setWalletError("No wallet detected. Please install a wallet extension.")
         return
       }
 
-      // Request accounts using the existing ethereum provider
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" })
+      // Request accounts using the existing FLOWereum provider
+      const accounts = await window.FLOWereum.request({ mFLOWod: "FLOW_requestAccounts" })
 
       if (accounts && accounts.length > 0) {
         setWalletAddress(accounts[0])
@@ -66,7 +66,7 @@ const useWalletConnection = () => {
 
   // Listen for account changes
   useEffect(() => {
-    if (typeof window !== "undefined" && window.ethereum) {
+    if (typeof window !== "undefined" && window.FLOWereum) {
       const handleAccountsChanged = (accounts) => {
         if (accounts.length === 0) {
           // User has disconnected their wallet
@@ -80,11 +80,11 @@ const useWalletConnection = () => {
       }
 
       // Subscribe to accounts change
-      window.ethereum.on("accountsChanged", handleAccountsChanged)
+      window.FLOWereum.on("accountsChanged", handleAccountsChanged)
 
       // Cleanup listener on component unmount
       return () => {
-        window.ethereum.removeListener("accountsChanged", handleAccountsChanged)
+        window.FLOWereum.removeListener("accountsChanged", handleAccountsChanged)
       }
     }
   }, [walletAddress])
@@ -157,12 +157,12 @@ const Navbar = () => {
           </Link>
         </nav>
         <div className="ml-6 flex items-center gap-2">
-          <Link href="#">
+          <Link href="register">
             <Button variant="ghost" size="sm" className="text-slate-700 hover:text-[#08f08f]">
               Sign In
             </Button>
           </Link>
-          <Link href="#">
+          <Link href="login">
             <Button size="sm" className="bg-[#08f08f] hover:bg-[#07d07d] text-white border-0">
               Get Started
             </Button>
@@ -254,7 +254,7 @@ export default function Home() {
                         <div className="flex justify-between items-center bg-slate-100 p-4 rounded-lg">
                           <div>
                             <div className="text-sm text-slate-500">Total Balance</div>
-                            <div className="text-xl font-bold text-slate-900">4.28 ETH</div>
+                            <div className="text-xl font-bold text-slate-900">4.28 FLOW</div>
                           </div>
                           <div className="text-green-500 flex items-center">
                             <span>+12%</span>
@@ -299,7 +299,7 @@ export default function Home() {
                                   <div className="text-xs text-slate-500">2 hours ago</div>
                                 </div>
                               </div>
-                              <div className="text-green-500">+0.25 ETH</div>
+                              <div className="text-green-500">+0.25 FLOW</div>
                             </div>
                             <div className="flex justify-between items-center py-2">
                               <div className="flex items-center">
@@ -311,7 +311,7 @@ export default function Home() {
                                   <div className="text-xs text-slate-500">5 hours ago</div>
                                 </div>
                               </div>
-                              <div className="text-green-500">+0.15 ETH</div>
+                              <div className="text-green-500">+0.15 FLOW</div>
                             </div>
                           </div>
                         </div>
@@ -413,7 +413,7 @@ export default function Home() {
                             Receive SMS confirmation with transaction details
                           </p>
                           <div className="mt-2 bg-white p-2 rounded border border-slate-200 text-xs font-mono">
-                            Confirm: Send 0.5 ETH to 0x1234...5678? Reply YES to proceed.
+                            Confirm: Send 0.5 FLOW to 0x1234...5678? Reply YES to proceed.
                           </div>
                         </div>
                       </div>
@@ -430,7 +430,7 @@ export default function Home() {
                             Transaction processed on blockchain and confirmation sent
                           </p>
                           <div className="mt-2 bg-white p-2 rounded border border-slate-200 text-xs font-mono">
-                            Success! 0.5 ETH sent. TX: 0xabcd...ef12. Thank you for using sms2flow.
+                            Success! 0.5 FLOW sent. TX: 0xabcd...ef12. Thank you for using sms2flow.
                           </div>
                         </div>
                       </div>
@@ -747,7 +747,7 @@ export default function Home() {
                             <div className="bg-white p-3 rounded text-xs font-mono text-slate-700 overflow-x-auto border border-slate-200">
                               To: +1-SMS2FLOW
                               <br />
-                              Message: SEND 0.5 ETH TO 0xabcd...ef12
+                              Message: SEND 0.5 FLOW TO 0xabcd...ef12
                             </div>
                             <Button size="sm" className="mt-3 bg-teal-500 hover:bg-teal-600 text-white border-0">
                               Send SMS
@@ -793,13 +793,13 @@ export default function Home() {
                             <div className="bg-white p-3 rounded border border-slate-200">
                               <div className="text-xs text-green-600 font-medium mb-2">✓ Transaction Successful</div>
                               <div className="text-xs text-slate-700">
-                                Sent: 0.5 ETH
+                                Sent: 0.5 FLOW
                                 <br />
                                 To: 0xabcd...ef12
                                 <br />
                                 TX Hash: 0x9876...5432
                                 <br />
-                                Gas Fee: 0.002 ETH
+                                Gas Fee: 0.002 FLOW
                               </div>
                             </div>
                           </div>
@@ -1168,7 +1168,7 @@ export default function Home() {
 
               <FaqItem
                 question="What cryptocurrencies are supported?"
-                answer="sms2flow supports all major cryptocurrencies including Bitcoin (BTC), Ethereum (ETH), and popular stablecoins like USDC and USDT. We're constantly adding support for new tokens and blockchain networks based on user demand."
+                answer="sms2flow supports all major cryptocurrencies including Bitcoin (BTC), FLOWereum (FLOW), and popular stablecoins like USDC and USDT. We're constantly adding support for new tokens and blockchain networks based on user demand."
               />
 
               <FaqItem
