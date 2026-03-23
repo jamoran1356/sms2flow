@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { BarChart3, CreditCard, Home, Settings, Users, MessageSquare, LogOut, Menu, Wallet, Shield, Store, Bell } from "lucide-react"
+import { BarChart3, CreditCard, Home, Settings, Users, MessageSquare, LogOut, Menu, Wallet, Shield, ArrowLeftRight, Bell } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -33,7 +33,7 @@ export default function DashboardLayout({ children }) {
       items: [
         { title: "Pagos SMS", href: "/dashboard/sms-payments", icon: MessageSquare },
         { title: "Billetera", href: "/dashboard/wallet", icon: Wallet },
-        { title: "Punto de Venta", href: "/dashboard/pos", icon: Store },
+        { title: "Marketplace P2P", href: "/dashboard/p2p-marketplace", icon: ArrowLeftRight },
       ],
     },
     {

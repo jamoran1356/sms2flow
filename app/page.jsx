@@ -146,6 +146,12 @@ const Navbar = () => {
           >
             How It Works
           </Link>
+          <Link
+            className="text-sm font-medium text-slate-700 hover:text-[#08f08f] transition-colors"
+            href="#p2p-marketplace"
+          >
+            P2P Marketplace
+          </Link>
           <Link className="text-sm font-medium text-slate-700 hover:text-[#08f08f] transition-colors" href="#pricing">
             Pricing
           </Link>
@@ -807,6 +813,85 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* DeFi P2P Marketplace Section */}
+        <section
+          className="w-full py-12 md:py-24 lg:py-32 border-t border-slate-200 bg-gradient-to-b from-white to-emerald-50/40"
+          id="p2p-marketplace"
+        >
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                <div className="inline-block rounded-lg bg-[#08f08f] px-3 py-1 text-sm text-white shadow-lg">
+                  DeFi + P2P Marketplace
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-slate-900">
+                  Smart liquidity to bank accounts, with no manual exchange steps
+                </h2>
+                <p className="max-w-[960px] text-slate-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  With sms2flow, recipients can enable an automated flow to convert FLOW into local currency through an
+                  automated P2P marketplace. The system finds the best available deal using AI agents, executes the
+                  trade, and keeps the user in control through SMS confirmation.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-12 relative">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#08f08f] to-teal-400 opacity-30 blur-xl"></div>
+              <div className="relative rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-2xl">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#08f08f] text-white font-bold">
+                      1
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900">SMS transfer</h3>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Customer A sends FLOW by SMS to Customer B using the standard sms2flow flow.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-teal-500 text-white font-bold">
+                      2
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900">Automatic bank payout</h3>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Customer B sets a registered bank account for automatic conversion and payout.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white font-bold">
+                      3
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900">Best AI quote</h3>
+                    <p className="mt-2 text-sm text-slate-600">
+                      AI agents compare P2P liquidity and execute the best available quote for the asset sale.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-cyan-600 text-white font-bold">
+                      4
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900">Validation + release</h3>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Customer B receives an SMS, verifies the bank deposit, and replies to securely release the assets.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-8 rounded-xl bg-slate-900 p-5 text-slate-100">
+                  <div className="text-xs uppercase tracking-[0.2em] text-[#08f08f]">Automated flow</div>
+                  <p className="mt-2 text-sm md:text-base">
+                    Customer A sends FLOW - Customer B has auto payout enabled - AI finds the best deal - The system
+                    sells and notifies by SMS - Customer B confirms in their bank account - The system releases assets.
+                  </p>
                 </div>
               </div>
             </div>
