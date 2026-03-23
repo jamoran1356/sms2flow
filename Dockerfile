@@ -1,6 +1,6 @@
 FROM node:20-alpine AS base
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 FROM base AS deps
 WORKDIR /app
@@ -21,7 +21,7 @@ ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-RUN npm install -g prisma@6.19.2
+RUN pnpm add -g prisma@6
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
