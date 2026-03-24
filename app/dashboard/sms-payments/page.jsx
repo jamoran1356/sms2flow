@@ -57,7 +57,7 @@ export default function SMSPayments() {
           type: "SMS_PAYMENT",
           amount: parseFloat(amount),
           currency: "FLOW",
-          toAddress: phone,
+          toPhone: phone,
           description: `Pago SMS a ${phone}`,
         }),
       })

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
+import { performVirtualWalletTransfer } from "@/lib/services/virtual-wallet-service"
 
 export async function GET(request) {
   try {
@@ -66,72 +67,24 @@ export async function POST(request) {
     }
 
     const body = await request.json()
-    const { toAddress, amount, type, description } = body
+    const { toAddress, toPhone, amount, type, description } = body
 
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: "Monto inválido" }, { status: 400 })
     }
 
-    const senderWallet = await prisma.wallet.findFirst({
-      where: { userId: session.user.id, isDefault: true },
-    })
-
-    if (!senderWallet) {
-      return NextResponse.json({ error: "No tienes una billetera configurada" }, { status: 400 })
-    }
-
-    if (parseFloat(senderWallet.balance) < amount) {
-      return NextResponse.json({ error: "Saldo insuficiente" }, { status: 400 })
-    }
-
-    // Find receiver wallet
-    let receiverWallet = null
-    let receiverId = null
-    if (toAddress) {
-      receiverWallet = await prisma.wallet.findUnique({
-        where: { address: toAddress },
-        include: { user: true },
-      })
-      receiverId = receiverWallet?.userId || null
-    }
-
-    // Create transaction
-    const transaction = await prisma.$transaction(async (tx) => {
-      // Deduct from sender
-      await tx.wallet.update({
-        where: { id: senderWallet.id },
-        data: {
-          balance: { decrement: amount },
-        },
-      })
-
-      // Add to receiver if internal
-      if (receiverWallet) {
-        await tx.wallet.update({
-          where: { id: receiverWallet.id },
-          data: {
-            balance: { increment: amount },
-          },
-        })
-      }
-
-      // Create transaction record
-      return tx.transaction.create({
-        data: {
-          senderId: session.user.id,
-          receiverId,
-          fromWalletId: senderWallet.id,
-          toWalletId: receiverWallet?.id || null,
-          type: type || "TRANSFER",
-          amount,
-          fee: 0.001,
-          currency: "FLOW",
-          status: "COMPLETED",
-          network: senderWallet.network,
-          description,
-          txHash: `0x${Date.now().toString(16)}${Math.random().toString(16).slice(2, 10)}`,
-        },
-      })
+    const transaction = await performVirtualWalletTransfer({
+      senderUserId: session.user.id,
+      amount,
+      toAddress,
+      toPhone,
+      type: type || "TRANSFER",
+      description,
+      metadata: {
+        source: "dashboard-api",
+        requestedToAddress: toAddress || null,
+        requestedToPhone: toPhone || null,
+      },
     })
 
     // Audit log
@@ -141,7 +94,7 @@ export async function POST(request) {
         action: "TRANSACTION_CREATE",
         entity: "Transaction",
         entityId: transaction.id,
-        details: { type, amount, toAddress },
+        details: { type, amount, toAddress, toPhone },
       },
     })
 

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
+import { virtualWalletIdFromUserId } from "@/lib/flow"
+import { getContractAddresses, hasFlowAdminConfig, runScript, sendTransaction } from "@/lib/flow-onchain"
 
 // GET staking pools and user positions
 export async function GET() {
@@ -23,6 +25,41 @@ export async function GET() {
       }),
     ])
 
+    let onchain = null
+    const contracts = getContractAddresses()
+    if (contracts.staking) {
+      try {
+        const walletId = virtualWalletIdFromUserId(session.user.id)
+        const staked = await runScript({
+          cadence: `
+            import SMS2FlowStaking from 0xSTAKING
+            access(all) fun main(walletId: String): UFix64 {
+              return SMS2FlowStaking.getStakedBalance(walletId: walletId)
+            }
+          `,
+          imports: { "0xSTAKING": contracts.staking },
+          args: (arg, t) => [arg(walletId, t.String)],
+        })
+        const rewards = await runScript({
+          cadence: `
+            import SMS2FlowStaking from 0xSTAKING
+            access(all) fun main(walletId: String): UFix64 {
+              return SMS2FlowStaking.getRewardBalance(walletId: walletId)
+            }
+          `,
+          imports: { "0xSTAKING": contracts.staking },
+          args: (arg, t) => [arg(walletId, t.String)],
+        })
+        onchain = {
+          staked: Number(staked || 0),
+          rewards: Number(rewards || 0),
+          contractAddress: contracts.staking,
+        }
+      } catch (e) {
+        onchain = null
+      }
+    }
+
     const totalStaked = positions
       .filter((p) => p.status === "ACTIVE")
       .reduce((sum, p) => sum + parseFloat(p.amount), 0)
@@ -37,6 +74,7 @@ export async function GET() {
       positions,
       totalStaked,
       totalRewards,
+      onchain,
     })
   } catch (error) {
     console.error("Staking error:", error)
@@ -80,6 +118,41 @@ export async function POST(request) {
       return NextResponse.json({ error: "Saldo insuficiente" }, { status: 400 })
     }
 
+    const contracts = getContractAddresses()
+    let stakingExecution = null
+
+    if (hasFlowAdminConfig() && contracts.staking) {
+      const walletId = virtualWalletIdFromUserId(session.user.id)
+      const result = await sendTransaction({
+        cadence: `
+          import SMS2FlowStaking from 0xSTAKING
+
+          transaction(walletId: String, amount: UFix64) {
+            prepare(signer: auth(BorrowValue) &Account) {}
+            execute {
+              SMS2FlowStaking.stake(walletId: walletId, amount: amount)
+            }
+          }
+        `,
+        imports: { "0xSTAKING": contracts.staking },
+        args: (arg, t) => [
+          arg(walletId, t.String),
+          arg(Number(amount).toFixed(8), t.UFix64),
+        ],
+      })
+
+      if (result.statusCode !== 0) {
+        return NextResponse.json({ error: result.errorMessage || "On-chain staking failed" }, { status: 500 })
+      }
+
+      stakingExecution = {
+        mode: "onchain",
+        txId: result.txId,
+        statusCode: result.statusCode,
+        contractAddress: contracts.staking,
+      }
+    }
+
     const position = await prisma.$transaction(async (tx) => {
       // Deduct from wallet
       await tx.wallet.update({
@@ -103,12 +176,13 @@ export async function POST(request) {
           poolId,
           amount,
           status: "ACTIVE",
+          rewards: 0,
         },
         include: { pool: true },
       })
     })
 
-    return NextResponse.json({ position }, { status: 201 })
+    return NextResponse.json({ position, execution: stakingExecution }, { status: 201 })
   } catch (error) {
     console.error("Staking error:", error)
     return NextResponse.json({ error: "Error en staking" }, { status: 500 })
