@@ -29,6 +29,8 @@ export default function CustomersPage() {
   const [newDialogOpen, setNewDialogOpen] = useState(false)
   const [newCustomer, setNewCustomer] = useState({ name: "", email: "", phone: "" })
   const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState("")
+  const [createSuccess, setCreateSuccess] = useState("")
 
   const fetchCustomers = async () => {
     try {
@@ -63,7 +65,7 @@ export default function CustomersPage() {
           type: "SMS_PAYMENT",
           amount: parseFloat(sendAmount),
           currency: "FLOW",
-          toAddress: selectedCustomer.phone,
+          toPhone: selectedCustomer.phone,
           description: `Envío SMS a ${selectedCustomer.name}`,
         }),
       })
@@ -80,7 +82,14 @@ export default function CustomersPage() {
   }
 
   const handleCreateCustomer = async () => {
-    if (!newCustomer.name) return
+    setCreateError("")
+    setCreateSuccess("")
+
+    if (!newCustomer.name || !newCustomer.phone) {
+      setCreateError("Nombre y teléfono son obligatorios")
+      return
+    }
+
     setCreating(true)
     try {
       const res = await fetch("/api/customers", {
@@ -88,13 +97,20 @@ export default function CustomersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newCustomer),
       })
+
+      const data = await res.json().catch(() => ({}))
+
       if (res.ok) {
         setNewDialogOpen(false)
         setNewCustomer({ name: "", email: "", phone: "" })
+        setCreateSuccess("Cliente agregado correctamente")
         fetchCustomers()
+      } else {
+        setCreateError(data.error || "No se pudo crear el cliente")
       }
     } catch (e) {
       console.error("Error creating customer:", e)
+      setCreateError("Error de conexión al crear el cliente")
     } finally {
       setCreating(false)
     }
@@ -114,6 +130,7 @@ export default function CustomersPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">Clientes</h1>
           <p className="text-gray-500 mt-1">Gestiona tus clientes y contactos</p>
+          {createSuccess && <p className="mt-2 text-sm text-green-600">{createSuccess}</p>}
         </div>
         <Dialog open={newDialogOpen} onOpenChange={setNewDialogOpen}>
           <DialogTrigger asChild>
@@ -128,6 +145,11 @@ export default function CustomersPage() {
               <DialogDescription>Agrega un nuevo cliente a tu lista</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
+              {createError && (
+                <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {createError}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label>Nombre</Label>
                 <Input value={newCustomer.name} onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })} placeholder="Nombre completo" />
@@ -137,13 +159,22 @@ export default function CustomersPage() {
                 <Input type="email" value={newCustomer.email} onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })} placeholder="correo@ejemplo.com" />
               </div>
               <div className="space-y-2">
-                <Label>Teléfono</Label>
+                <Label>Teléfono (obligatorio)</Label>
                 <Input value={newCustomer.phone} onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })} placeholder="+34 612 345 678" />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setNewDialogOpen(false)}>Cancelar</Button>
-              <Button onClick={handleCreateCustomer} disabled={creating || !newCustomer.name} className="bg-blue-600 hover:bg-blue-700">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setCreateError("")
+                  setCreateSuccess("")
+                  setNewDialogOpen(false)
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={handleCreateCustomer} disabled={creating || !newCustomer.name || !newCustomer.phone} className="bg-blue-600 hover:bg-blue-700">
                 {creating ? "Creando..." : "Crear Cliente"}
               </Button>
             </DialogFooter>

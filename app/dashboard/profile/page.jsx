@@ -92,11 +92,11 @@ export default function ProfilePage() {
   const completionPercent = [profileData.name, profileData.email, wallets.length > 0].filter(Boolean).length * 33
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">Mi Perfil</h1>
-          <p className="text-gray-500 mt-1">Gestiona tu información personal</p>
+          <p className="mt-1 text-gray-500">Gestiona tu información personal</p>
         </div>
         <Button
           size="sm"
@@ -114,10 +114,10 @@ export default function ProfilePage() {
       <div className="grid gap-6 md:grid-cols-7">
         <div className="md:col-span-3 space-y-6">
           {/* Profile card */}
-          <Card className="border-0 shadow-md">
+          <Card className="border border-slate-200 bg-white shadow-sm">
             <CardHeader className="pb-0">
               <div className="flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center mb-4">
+                <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 ring-4 ring-blue-100">
                   {session?.user?.image ? (
                     <img src={session.user.image} alt="Avatar" className="w-24 h-24 rounded-full object-cover" />
                   ) : (
@@ -129,7 +129,7 @@ export default function ProfilePage() {
                 {isEditing ? (
                   <Input name="name" value={profileData.name} onChange={handleChange} className="text-center font-bold text-xl max-w-[250px]" />
                 ) : (
-                  <h2 className="text-xl font-bold">{profileData.name || "Sin nombre"}</h2>
+                  <h2 className="text-xl font-bold text-slate-900">{profileData.name || "Sin nombre"}</h2>
                 )}
                 <p className="text-sm text-gray-500 mt-1">{profileData.email}</p>
                 <span className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
@@ -139,7 +139,7 @@ export default function ProfilePage() {
               </div>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="space-y-3">
+              <div className="space-y-3 rounded-lg border border-slate-100 bg-slate-50 p-3">
                 <div className="flex items-center">
                   <Mail className="h-4 w-4 text-gray-400 mr-2" />
                   {isEditing ? (
@@ -161,7 +161,7 @@ export default function ProfilePage() {
               <div className="mt-6">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium">Perfil completado</span>
-                  <span className="text-sm text-gray-500">{completionPercent}%</span>
+                  <span className="text-sm font-semibold text-slate-700">{completionPercent}%</span>
                 </div>
                 <Progress value={completionPercent} className="h-2" />
               </div>
@@ -169,7 +169,7 @@ export default function ProfilePage() {
           </Card>
 
           {/* Wallets */}
-          <Card className="border-0 shadow-md">
+          <Card className="border border-slate-200 bg-white shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Wallet className="h-5 w-5 mr-2 text-blue-600" />
@@ -183,7 +183,7 @@ export default function ProfilePage() {
               ) : (
                 <div className="space-y-3">
                   {wallets.map((w) => (
-                    <div key={w.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={w.id} className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3">
                       <div>
                         <p className="text-sm font-medium">{w.label || "Billetera Flow"}</p>
                         <p className="text-xs text-gray-500 font-mono">{w.address?.slice(0, 8)}...{w.address?.slice(-6)}</p>
@@ -204,26 +204,26 @@ export default function ProfilePage() {
 
         <div className="md:col-span-4 space-y-6">
           {/* Stats */}
-          <Card className="border-0 shadow-md">
+          <Card className="border border-slate-200 bg-white shadow-sm">
             <CardHeader>
               <CardTitle>Estadísticas</CardTitle>
               <CardDescription>Resumen de tu actividad en la plataforma</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
-                <div className="flex flex-col items-center p-4 bg-blue-50 rounded-lg">
+                <div className="flex flex-col items-center rounded-lg border border-slate-200 bg-white p-4">
                   <div className="text-2xl font-bold text-blue-700">{stats.transactions}</div>
                   <p className="text-sm text-gray-600">Transacciones</p>
                 </div>
-                <div className="flex flex-col items-center p-4 bg-indigo-50 rounded-lg">
+                <div className="flex flex-col items-center rounded-lg border border-slate-200 bg-white p-4">
                   <div className="text-2xl font-bold text-indigo-700">{stats.totalValue} FLOW</div>
                   <p className="text-sm text-gray-600">Balance Total</p>
                 </div>
-                <div className="flex flex-col items-center p-4 bg-purple-50 rounded-lg">
+                <div className="flex flex-col items-center rounded-lg border border-slate-200 bg-white p-4">
                   <div className="text-2xl font-bold text-purple-700">{stats.wallets}</div>
                   <p className="text-sm text-gray-600">Billeteras</p>
                 </div>
-                <div className="flex flex-col items-center p-4 bg-cyan-50 rounded-lg">
+                <div className="flex flex-col items-center rounded-lg border border-slate-200 bg-white p-4">
                   <div className="text-2xl font-bold text-cyan-700">{stats.customers}</div>
                   <p className="text-sm text-gray-600">Clientes</p>
                 </div>
@@ -232,14 +232,14 @@ export default function ProfilePage() {
           </Card>
 
           {/* Verification */}
-          <Card className="border-0 shadow-md">
+          <Card className="border border-slate-200 bg-white shadow-sm">
             <CardHeader>
               <CardTitle>Verificación de Identidad</CardTitle>
               <CardDescription>Estado de verificación de tu cuenta</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-100">
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4">
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
                       <User className="h-5 w-5 text-green-600" />
@@ -252,7 +252,7 @@ export default function ProfilePage() {
                   <BadgeCheck className="h-5 w-5 text-green-600" />
                 </div>
 
-                <div className={`flex items-center justify-between p-4 rounded-lg border ${profileData.email ? "bg-green-50 border-green-100" : "bg-amber-50 border-amber-100"}`}>
+                <div className={`flex items-center justify-between rounded-lg border bg-white p-4 ${profileData.email ? "border-slate-200" : "border-amber-200"}`}>
                   <div className="flex items-center">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${profileData.email ? "bg-green-100" : "bg-amber-100"}`}>
                       <Mail className={`h-5 w-5 ${profileData.email ? "text-green-600" : "text-amber-600"}`} />
@@ -267,7 +267,7 @@ export default function ProfilePage() {
                   {profileData.email && <BadgeCheck className="h-5 w-5 text-green-600" />}
                 </div>
 
-                <div className={`flex items-center justify-between p-4 rounded-lg border ${wallets.length > 0 ? "bg-green-50 border-green-100" : "bg-amber-50 border-amber-100"}`}>
+                <div className={`flex items-center justify-between rounded-lg border bg-white p-4 ${wallets.length > 0 ? "border-slate-200" : "border-amber-200"}`}>
                   <div className="flex items-center">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${wallets.length > 0 ? "bg-green-100" : "bg-amber-100"}`}>
                       <Shield className={`h-5 w-5 ${wallets.length > 0 ? "text-green-600" : "text-amber-600"}`} />

@@ -246,6 +246,99 @@ flow accounts create --network testnet
 flow accounts fund <account-name> --network testnet
 ```
 
+## Testing And Validation
+
+### 1) Flow Contract Smoke Test (read-only)
+
+Validates chain connectivity and contract availability without moving funds.
+
+```bash
+pnpm test:flow:smoke
+```
+
+Required env vars:
+
+- `FLOW_COMMAND_TRANSFER_CONTRACT_ADDRESS`
+- `FLOW_VIRTUAL_WALLET_CONTRACT_ADDRESS`
+
+Optional env vars:
+
+- `FLOW_ACCESS_NODE` (default `https://rest-testnet.onflow.org`)
+- `FLOW_NETWORK` (default `testnet`)
+
+### 2) Flow Contract End-to-End Confirmation Test (write mode)
+
+Executes the full secure flow on-chain:
+
+- request transfer with confirmation key
+- confirm transfer with key
+- validate status changed to confirmed
+- validate wallet balances moved only after confirmation
+
+```bash
+pnpm test:flow:e2e
+```
+
+Additional required env vars:
+
+- `FLOW_ADMIN_ADDRESS`
+- `FLOW_ADMIN_PRIVATE_KEY`
+- `FLOW_ADMIN_KEY_ID`
+- `FLOW_TEST_FROM_WALLET_ID`
+- `FLOW_TEST_TO_WALLET_ID`
+- `FLOW_TEST_KEY`
+
+Optional:
+
+- `FLOW_TEST_AMOUNT` (default `0.00000001`)
+
+### 3) SMS Webhook Security Smoke Test
+
+Runs quick checks for:
+
+- token validation (`401` on invalid token)
+- malformed payload rejection (`400`)
+- optional invalid command rejection (`400`)
+
+```bash
+pnpm test:security:sms
+```
+
+Notes:
+
+- The app must be running (`pnpm dev` or `pnpm start`).
+- `BASE_URL` defaults to `http://localhost:3000`.
+
+### 4) Stress Test
+
+Executes HTTP load testing with latency and throughput thresholds.
+
+```bash
+pnpm test:stress
+```
+
+Defaults:
+
+- path: `/api/sms`
+- method: `POST`
+- connections: `50`
+- duration: `30` seconds
+- p99 threshold: `1500ms`
+- minimum avg throughput: `20 req/sec`
+
+Useful overrides:
+
+- `STRESS_PATH`, `STRESS_METHOD`
+- `STRESS_CONNECTIONS`, `STRESS_DURATION`, `STRESS_PIPELINING`
+- `STRESS_MAX_P99_MS`, `STRESS_MIN_REQ_SEC`
+- `STRESS_FROM_PHONE`, `STRESS_MESSAGE`, `BASE_URL`
+
+Example:
+
+```bash
+STRESS_CONNECTIONS=100 STRESS_DURATION=60 STRESS_MAX_P99_MS=2000 pnpm test:stress
+```
+
 ## Project Status
 
 Implemented:
