@@ -7,6 +7,20 @@ import {
   virtualWalletIdFromUserId,
 } from "@/lib/flow"
 import { getContractAddresses, hasFlowAdminConfig, sendTransaction } from "@/lib/flow-onchain"
+import { purchaseMachineProduct, toDecimal8FromWei } from "@/lib/services/machine-onchain-service"
+
+function parseSmsMachineBuyCommand(message) {
+  const text = String(message || "").trim()
+  // BUY <machineId> <productId> [REF <reference>]
+  const match = text.match(/^BUY\s+(\d+)\s+(\d+)(?:\s+REF\s+([A-Za-z0-9_:\-.]+))?$/i)
+  if (!match) return null
+
+  return {
+    machineId: Number(match[1]),
+    productId: Number(match[2]),
+    smsReference: match[3] || null,
+  }
+}
 
 function isAuthorized(req) {
   const configuredToken = process.env.SMS_WEBHOOK_TOKEN
@@ -32,6 +46,7 @@ export async function POST(request) {
 
     const parsedTransfer = parseSmsTransferWithKeyCommand(rawMessage)
     const parsedConfirm = parseSmsConfirmCommand(rawMessage)
+    const parsedMachineBuy = parseSmsMachineBuyCommand(rawMessage)
 
     const senderUser = await prisma.user.findFirst({ where: { phone: fromPhone } })
 
@@ -41,7 +56,7 @@ export async function POST(request) {
         fromPhone,
         toPhone: process.env.SMS_INBOX_NUMBER || "sms2flow",
         message: rawMessage,
-        command: parsedTransfer ? "SEND" : parsedConfirm ? "CONFIRM" : "UNKNOWN",
+        command: parsedTransfer ? "SEND" : parsedConfirm ? "CONFIRM" : parsedMachineBuy ? "MACHINE_BUY" : "UNKNOWN",
         amount: parsedTransfer?.amount || null,
         status: "received",
       },
@@ -52,12 +67,63 @@ export async function POST(request) {
       return NextResponse.json({ error: "Sender phone not registered" }, { status: 404 })
     }
 
-    if (!parsedTransfer && !parsedConfirm) {
+    if (!parsedTransfer && !parsedConfirm && !parsedMachineBuy) {
       await prisma.smsMessage.update({ where: { id: smsRecord.id }, data: { status: "failed" } })
       return NextResponse.json({
         error: "Invalid command format",
-        expected: "SEND <amount> FLOW TO <phone> KEY <pin> OR CONFIRM <transferId> <pin>",
+        expected: "SEND <amount> FLOW TO <phone> KEY <pin> OR CONFIRM <transferId> <pin> OR BUY <machineId> <productId> [REF <reference>]",
       }, { status: 400 })
+    }
+
+    if (parsedMachineBuy) {
+      const generatedReference = `SMS-${smsRecord.id}`
+      const smsReference = parsedMachineBuy.smsReference || generatedReference
+
+      const onchain = await purchaseMachineProduct({
+        machineId: parsedMachineBuy.machineId,
+        productId: parsedMachineBuy.productId,
+        smsReference,
+      })
+
+      const machineTx = await prisma.transaction.create({
+        data: {
+          senderId: senderUser.id,
+          type: "SMS_PAYMENT",
+          amount: toDecimal8FromWei(onchain.amountWei),
+          fee: 0,
+          currency: "BNB",
+          status: "PENDING",
+          network: "TESTNET",
+          txHash: onchain.txHash,
+          description: `SMS machine purchase ${parsedMachineBuy.machineId}/${parsedMachineBuy.productId}`,
+          metadata: {
+            source: "sms-command-machine-buy",
+            smsMessageId: smsRecord.id,
+            machineId: parsedMachineBuy.machineId,
+            productId: parsedMachineBuy.productId,
+            machinePurchaseId: onchain.purchaseId,
+            smsReference,
+            fromPhone,
+            buyerAddress: onchain.buyer,
+            blockNumber: onchain.blockNumber,
+          },
+        },
+      })
+
+      await prisma.smsMessage.update({
+        where: { id: smsRecord.id },
+        data: {
+          status: "processed",
+          processedAt: new Date(),
+        },
+      })
+
+      return NextResponse.json({
+        ok: true,
+        transaction: machineTx,
+        purchaseId: onchain.purchaseId,
+        message: `Purchase registered. machine=${parsedMachineBuy.machineId} product=${parsedMachineBuy.productId} purchaseId=${onchain.purchaseId ?? "pending"}`,
+      }, { status: 201 })
     }
 
     if (!hasFlowAdminConfig()) {

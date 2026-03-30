@@ -21,6 +21,11 @@
     "db:studio": "prisma studio",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
+    "machines:compile": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat compile",
+    "machines:test": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat test",
+    "machines:deploy:testnet": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/deploy-machine-registry.ts --network bscTestnet",
+    "machines:deploy:mainnet": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/deploy-machine-registry.ts --network bscMainnet",
+    "machines:listen": "ts-node --project tsconfig.hardhat.json scripts/listen-machine-events.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -31,6 +36,7 @@
     "@onflow/sdk": "^1.13.7",
     "@onflow/transport-http": "^1.15.6",
     "@onflow/types": "^1.4.0",
+    "@openzeppelin/contracts": "^5.6.1",
     "@prisma/client": "^6.0.0",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.4",
@@ -67,6 +73,7 @@
     "date-fns": "^4.1.0",
     "elliptic": "^6.6.1",
     "embla-carousel-react": "^8.5.1",
+    "ethers": "^6.16.0",
     "input-otp": "^1.4.1",
     "lucide-react": "^0.454.0",
     "next": "^16.2.1",
@@ -88,14 +95,19 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "autocannon": "^8.0.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^17.3.1",
+    "hardhat": "^2.28.6",
     "postcss": "^8.5",
     "prisma": "^6.0.0",
     "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

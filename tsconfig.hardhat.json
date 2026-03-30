@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2020"],
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "outDir": "./dist-hardhat",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "./hardhat.config.ts",
+    "./contracts/**/*.sol",
+    "./scripts/deploy-machine-registry.ts",
+    "./scripts/listen-machine-events.ts",
+    "./test/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "app/**",
+    "components/**",
+    "lib/**",
+    "prisma/**"
+  ]
+}

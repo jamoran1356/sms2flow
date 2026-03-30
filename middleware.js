@@ -5,7 +5,13 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl
 
   const publicPages = ["/", "/login", "/register", "/forgot-password", "/admin/login"]
-  const publicApiPrefixes = ["/api/auth", "/api/register", "/api/sms"]
+  const publicApiPrefixes = [
+    "/api/auth",
+    "/api/register",
+    "/api/sms",
+    "/api/machines/purchase",
+    "/api/machines/dispense-callback",
+  ]
 
   const isPublicPage = publicPages.some((path) => pathname === path)
   const isPublicApi = publicApiPrefixes.some((prefix) => pathname.startsWith(prefix))
