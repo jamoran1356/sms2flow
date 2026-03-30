@@ -2,6 +2,8 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import AuthProvider from "@/components/auth-provider"
+import { LanguageProvider } from "@/components/language-provider"
+import LanguageSwitch from "@/components/language-switch"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -16,9 +18,12 @@ export default function RootLayout({ children }) {
     <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
         <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="light">
-            {children}
-          </ThemeProvider>
+          <LanguageProvider>
+            <ThemeProvider attribute="class" defaultTheme="light">
+              <LanguageSwitch />
+              {children}
+            </ThemeProvider>
+          </LanguageProvider>
         </AuthProvider>
       </body>
     </html>

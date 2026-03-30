@@ -84,3 +84,11 @@
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+html[lang="es"] .i18n-en {
+  display: none !important;
+}
+
+html[lang="en"] .i18n-es {
+  display: none !important;
+}

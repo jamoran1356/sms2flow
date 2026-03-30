@@ -137,6 +137,9 @@ const Navbar = () => {
           </div>
         </Link>
         <nav className="ml-auto flex gap-6">
+          <Link className="text-sm font-medium text-slate-700 hover:text-[#08f08f] transition-colors" href="/machines">
+            Machines
+          </Link>
           <Link className="text-sm font-medium text-slate-700 hover:text-[#08f08f] transition-colors" href="#features">
             Features
           </Link>

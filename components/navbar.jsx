@@ -23,6 +23,7 @@ export function Navbar() {
 
   const navigation = [
     { name: "Home", href: "/" },
+    { name: "Machines", href: "/machines" },
     { name: "Features", href: "/#features" },
     { name: "Pricing", href: "/#pricing" },
     { name: "About", href: "/#about" },
