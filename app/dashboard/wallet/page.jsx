@@ -225,7 +225,7 @@ export default function WalletPage() {
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(wallet.address)}>
                           <Copy className="h-3 w-3" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => window.open(`https://flowscan.org/account/${wallet.address}`, "_blank")}>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => window.open(`https://testnet.flowscan.io/account/${wallet.address}`, "_blank")}>
                           <ExternalLink className="h-3 w-3" />
                         </Button>
                       </div>

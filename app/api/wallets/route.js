@@ -51,12 +51,13 @@ export async function POST(request) {
     const body = await request.json()
     const { network } = body
 
-    const address = await createFlowWallet()
+    const { address, privateKey } = await createFlowWallet()
 
     const wallet = await prisma.wallet.create({
       data: {
         userId: session.user.id,
         address,
+        privateKey,
         network: network || "TESTNET",
         isDefault: false,
       },

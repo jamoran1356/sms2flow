@@ -23,6 +23,7 @@ export default function DashboardLayout({ children }) {
       title: "PRINCIPAL",
       items: [
         { title: "Panel", href: "/dashboard", icon: Home },
+        { title: "Marketplace P2P", href: "/dashboard/p2p-marketplace", icon: ArrowLeftRight },
         { title: "Transacciones", href: "/dashboard/transactions", icon: CreditCard },
         { title: "Usuarios SMS", href: "/dashboard/customers", icon: Users },
         { title: "Staking", href: "/dashboard/staking", icon: BarChart3 },
@@ -33,7 +34,6 @@ export default function DashboardLayout({ children }) {
       items: [
         { title: "Pagos SMS", href: "/dashboard/sms-payments", icon: MessageSquare },
         { title: "Billetera", href: "/dashboard/wallet", icon: Wallet },
-        { title: "Marketplace P2P", href: "/dashboard/p2p-marketplace", icon: ArrowLeftRight },
       ],
     },
     {
