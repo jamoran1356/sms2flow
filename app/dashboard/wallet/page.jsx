@@ -9,6 +9,8 @@ import {
   RefreshCw,
   Wallet,
   Plus,
+  Star,
+  Check,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -26,15 +28,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
+function formatBalance(value) {
+  const num = parseFloat(value || 0)
+  return new Intl.NumberFormat("es-ES", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  }).format(num)
+}
+
 export default function WalletPage() {
   const [wallets, setWallets] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [settingDefault, setSettingDefault] = useState(null)
   const [sendAddress, setSendAddress] = useState("")
   const [sendAmount, setSendAmount] = useState("")
   const [sending, setSending] = useState(false)
   const [sendDialogOpen, setSendDialogOpen] = useState(false)
+  const [copied, setCopied] = useState(null)
 
   const fetchWallets = async () => {
     try {
@@ -76,6 +88,24 @@ export default function WalletPage() {
     }
   }
 
+  const handleSetDefault = async (walletId) => {
+    setSettingDefault(walletId)
+    try {
+      const res = await fetch("/api/wallets", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ walletId }),
+      })
+      if (res.ok) {
+        await fetchWallets()
+      }
+    } catch (e) {
+      console.error("Error setting default:", e)
+    } finally {
+      setSettingDefault(null)
+    }
+  }
+
   const handleSend = async () => {
     if (!sendAddress || !sendAmount) return
     setSending(true)
@@ -104,8 +134,10 @@ export default function WalletPage() {
     }
   }
 
-  const copyToClipboard = (text) => {
+  const copyToClipboard = (text, id) => {
     navigator.clipboard.writeText(text)
+    setCopied(id)
+    setTimeout(() => setCopied(null), 2000)
   }
 
   const totalBalance = wallets.reduce((sum, w) => sum + parseFloat(w.balance || 0), 0)
@@ -154,7 +186,7 @@ export default function WalletPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label>Cantidad</Label>
-                    <span className="text-xs text-gray-500">Disponible: {totalBalance.toFixed(4)} FLOW</span>
+                    <span className="text-xs text-gray-500">Disponible: {formatBalance(totalBalance)} FLOW</span>
                   </div>
                   <Input
                     type="number"
@@ -181,7 +213,7 @@ export default function WalletPage() {
         <CardContent className="py-8">
           <div className="text-center">
             <p className="text-blue-100 text-sm font-medium">Balance Total</p>
-            <p className="text-4xl font-bold mt-2">{totalBalance.toFixed(4)} FLOW</p>
+            <p className="text-4xl font-bold mt-2">{formatBalance(totalBalance)} FLOW</p>
             <p className="text-blue-200 text-sm mt-1">{wallets.length} billetera(s) activa(s)</p>
           </div>
         </CardContent>
@@ -200,7 +232,7 @@ export default function WalletPage() {
         {wallets.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2">
             {wallets.map((wallet) => (
-              <Card key={wallet.id} className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <Card key={wallet.id} className={`border-0 shadow-md hover:shadow-lg transition-shadow ${wallet.isDefault ? "ring-2 ring-blue-500" : ""}`}>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -215,6 +247,18 @@ export default function WalletPage() {
                         </CardDescription>
                       </div>
                     </div>
+                    {!wallet.isDefault && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-gray-500 hover:text-blue-600"
+                        onClick={() => handleSetDefault(wallet.id)}
+                        disabled={settingDefault === wallet.id}
+                      >
+                        <Star className="h-3.5 w-3.5 mr-1" />
+                        {settingDefault === wallet.id ? "..." : "Hacer principal"}
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -222,8 +266,8 @@ export default function WalletPage() {
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <code className="text-xs font-mono text-gray-700 truncate max-w-[200px]">{wallet.address}</code>
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(wallet.address)}>
-                          <Copy className="h-3 w-3" />
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(wallet.address, wallet.id)}>
+                          {copied === wallet.id ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
                         </Button>
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => window.open(`https://testnet.flowscan.io/account/${wallet.address}`, "_blank")}>
                           <ExternalLink className="h-3 w-3" />
@@ -231,7 +275,7 @@ export default function WalletPage() {
                       </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-gray-900">{parseFloat(wallet.balance).toFixed(4)}</p>
+                      <p className="text-2xl font-bold text-gray-900">{formatBalance(wallet.balance)}</p>
                       <p className="text-sm text-gray-500">FLOW</p>
                     </div>
                   </div>

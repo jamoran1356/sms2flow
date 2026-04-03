@@ -69,3 +69,44 @@ export async function POST(request) {
     return NextResponse.json({ error: "Error creando billetera" }, { status: 500 })
   }
 }
+
+export async function PATCH(request) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { walletId } = body
+
+    if (!walletId) {
+      return NextResponse.json({ error: "walletId is required" }, { status: 400 })
+    }
+
+    const wallet = await prisma.wallet.findFirst({
+      where: { id: walletId, userId: session.user.id },
+    })
+
+    if (!wallet) {
+      return NextResponse.json({ error: "Wallet not found" }, { status: 404 })
+    }
+
+    // Unset current default
+    await prisma.wallet.updateMany({
+      where: { userId: session.user.id, isDefault: true },
+      data: { isDefault: false },
+    })
+
+    // Set new default
+    const updated = await prisma.wallet.update({
+      where: { id: walletId },
+      data: { isDefault: true },
+    })
+
+    return NextResponse.json({ wallet: updated })
+  } catch (error) {
+    console.error("Set default wallet error:", error)
+    return NextResponse.json({ error: "Error actualizando billetera" }, { status: 500 })
+  }
+}
