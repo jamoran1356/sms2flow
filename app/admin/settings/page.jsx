@@ -38,10 +38,14 @@ export default function AdminSettings() {
   const [smtpPort, setSmtpPort] = useState("")
   const [smtpUser, setSmtpUser] = useState("")
 
-  // SMS
+  // SMS / Twilio
   const [smsProvider, setSmsProvider] = useState("twilio")
   const [smsSid, setSmsSid] = useState("")
+  const [smsAuthToken, setSmsAuthToken] = useState("")
   const [smsFrom, setSmsFrom] = useState("")
+  const [smsWebhookUrl, setSmsWebhookUrl] = useState("")
+  const [twilioTestStatus, setTwilioTestStatus] = useState(null)
+  const [twilioTesting, setTwilioTesting] = useState(false)
 
   // Advanced
   const [logLevel, setLogLevel] = useState("info")
@@ -75,7 +79,9 @@ export default function AdminSettings() {
           if (map.smtpUser) setSmtpUser(map.smtpUser)
           if (map.smsProvider) setSmsProvider(map.smsProvider)
           if (map.smsSid) setSmsSid(map.smsSid)
+          if (map.smsAuthToken) setSmsAuthToken(map.smsAuthToken)
           if (map.smsFrom) setSmsFrom(map.smsFrom)
+          if (map.smsWebhookUrl) setSmsWebhookUrl(map.smsWebhookUrl)
           if (map.logLevel) setLogLevel(map.logLevel)
           if (map.cacheTtl) setCacheTtl(map.cacheTtl)
           if (map.rateLimit) setRateLimit(map.rateLimit)
@@ -96,7 +102,7 @@ export default function AdminSettings() {
         systemName, systemDescription, timezone, language,
         maintenanceMode: String(maintenanceMode), debugMode: String(debugMode),
         flowNetwork, flowEndpoint, contractAddress, gasLimit, transactionFee, supportedTokens,
-        smtpHost, smtpPort, smtpUser, smsProvider, smsSid, smsFrom,
+        smtpHost, smtpPort, smtpUser, smsProvider, smsSid, smsAuthToken, smsFrom, smsWebhookUrl,
         logLevel, cacheTtl, rateLimit,
       }
       await fetch("/api/admin/settings", {
@@ -227,8 +233,9 @@ export default function AdminSettings() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Wifi className="h-5 w-5" />
-                  Configuración SMS
+                  Configuración SMS / Twilio
                 </CardTitle>
+                <CardDescription>Configura la integración con Twilio para enviar y recibir SMS reales</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -244,11 +251,58 @@ export default function AdminSettings() {
                 </div>
                 <div className="space-y-2">
                   <Label>Account SID</Label>
-                  <Input placeholder="ACxxxxxxxx" value={smsSid} onChange={(e) => setSmsSid(e.target.value)} />
+                  <Input placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" value={smsSid} onChange={(e) => setSmsSid(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Número de Origen</Label>
+                  <Label>Auth Token</Label>
+                  <Input type="password" placeholder="Tu auth token de Twilio" value={smsAuthToken} onChange={(e) => setSmsAuthToken(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Número de Origen (From)</Label>
                   <Input placeholder="+1234567890" value={smsFrom} onChange={(e) => setSmsFrom(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Webhook URL</Label>
+                  <Input
+                    placeholder="https://tu-dominio.com/api/sms/twilio"
+                    value={smsWebhookUrl}
+                    onChange={(e) => setSmsWebhookUrl(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Configura esta URL como webhook en tu panel de Twilio (Messaging → Webhooks)
+                  </p>
+                </div>
+                <div className="pt-2 flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={twilioTesting || !smsSid || !smsAuthToken}
+                    onClick={async () => {
+                      setTwilioTesting(true)
+                      setTwilioTestStatus(null)
+                      try {
+                        const res = await fetch("/api/admin/twilio/test", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ accountSid: smsSid, authToken: smsAuthToken }),
+                        })
+                        const data = await res.json()
+                        setTwilioTestStatus(data.ok ? "success" : "error")
+                      } catch {
+                        setTwilioTestStatus("error")
+                      } finally {
+                        setTwilioTesting(false)
+                      }
+                    }}
+                  >
+                    {twilioTesting ? "Probando..." : "Probar Conexión"}
+                  </Button>
+                  {twilioTestStatus === "success" && (
+                    <span className="text-sm text-green-600 font-medium">✓ Conexión exitosa</span>
+                  )}
+                  {twilioTestStatus === "error" && (
+                    <span className="text-sm text-red-600 font-medium">✗ Error de conexión</span>
+                  )}
                 </div>
               </CardContent>
             </Card>

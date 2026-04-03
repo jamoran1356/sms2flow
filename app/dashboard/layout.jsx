@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { BarChart3, CreditCard, Home, Settings, Users, MessageSquare, LogOut, Menu, Wallet, Shield, ArrowLeftRight, Bell } from "lucide-react"
+import { BarChart3, CreditCard, Home, Settings, Users, MessageSquare, LogOut, Menu, Wallet, Shield, ArrowLeftRight, Bell, Smartphone } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -24,6 +24,7 @@ export default function DashboardLayout({ children }) {
       items: [
         { title: "Panel", href: "/dashboard", icon: Home },
         { title: "Marketplace P2P", href: "/dashboard/p2p-marketplace", icon: ArrowLeftRight },
+        { title: "Simulador SMS", href: "/dashboard/sms-simulator", icon: Smartphone },
         { title: "Transacciones", href: "/dashboard/transactions", icon: CreditCard },
         { title: "Usuarios SMS", href: "/dashboard/customers", icon: Users },
         { title: "Staking", href: "/dashboard/staking", icon: BarChart3 },
