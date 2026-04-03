@@ -29,6 +29,7 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.pnpm/@prisma+client@*/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/.pnpm/@prisma+client@*/node_modules/@prisma/client ./node_modules/@prisma/client
+COPY --from=builder /app/node_modules/.pnpm/bcryptjs@*/node_modules/bcryptjs ./node_modules/bcryptjs
 
 RUN mkdir -p /app/.next/cache && chown -R nextjs:nodejs /app/.next/cache
 
@@ -37,4 +38,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["sh", "-c", "prisma db push --skip-generate && node server.js"]
+CMD ["sh", "-c", "prisma db push --skip-generate && node prisma/seed.js 2>/dev/null || true && node server.js"]

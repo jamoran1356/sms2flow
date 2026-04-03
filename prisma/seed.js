@@ -118,15 +118,152 @@ async function main() {
   console.log("  ✅ System settings")
 
   // --- Seed Audit Log ---
-  await prisma.auditLog.create({
-    data: {
-      userId: admin.id,
-      action: "SEED",
-      entity: "System",
-      details: { message: "Database seeded successfully" },
-    },
-  })
+  const existingAudit = await prisma.auditLog.count({ where: { action: "SEED", entity: "System" } })
+  if (existingAudit === 0) {
+    await prisma.auditLog.create({
+      data: {
+        userId: admin.id,
+        action: "SEED",
+        entity: "System",
+        details: { message: "Database seeded successfully" },
+      },
+    })
+  }
   console.log("  ✅ Audit log entry")
+
+  // --- P2P Marketplace Users ---
+  const p2pUsers = []
+  const p2pUserData = [
+    { name: "Carlos Mendoza", email: "carlos@example.com", phone: "+573001234567" },
+    { name: "María García", email: "maria@example.com", phone: "+573009876543" },
+    { name: "Juan Pérez", email: "juan@example.com", phone: "+525512345678" },
+    { name: "Ana Rodríguez", email: "ana@example.com", phone: "+5491112345678" },
+    { name: "Roberto Silva", email: "roberto@example.com", phone: "+5511987654321" },
+  ]
+  for (const u of p2pUserData) {
+    const p2pUser = await prisma.user.upsert({
+      where: { email: u.email },
+      update: {},
+      create: {
+        name: u.name,
+        email: u.email,
+        phone: u.phone,
+        hashedPassword: userPassword,
+        role: "USER",
+        isActive: true,
+        isVerified: true,
+        emailVerified: new Date(),
+      },
+    })
+    p2pUsers.push(p2pUser)
+  }
+  console.log("  ✅ P2P marketplace users")
+
+  // --- P2P Listings ---
+  const existingListings = await prisma.p2pListing.count()
+  if (existingListings === 0) {
+    const listings = [
+      {
+        userId: p2pUsers[0].id,
+        type: "SELL",
+        amount: 500,
+        price: 0.85,
+        currency: "USD",
+        minAmount: 50,
+        maxAmount: 500,
+        paymentMethod: "bank_transfer",
+        description: "Transferencia Bancolombia o Nequi. Confirmación en menos de 10 minutos. Solo Colombia.",
+        status: "ACTIVE",
+      },
+      {
+        userId: p2pUsers[1].id,
+        type: "BUY",
+        amount: 1000,
+        price: 0.82,
+        currency: "USD",
+        minAmount: 100,
+        maxAmount: 1000,
+        paymentMethod: "bank_transfer",
+        description: "Compro FLOW pagando por Davivienda o Bancolombia. Pago inmediato después de verificar transacción.",
+        status: "ACTIVE",
+      },
+      {
+        userId: p2pUsers[2].id,
+        type: "SELL",
+        amount: 2000,
+        price: 14.50,
+        currency: "MXN",
+        minAmount: 200,
+        maxAmount: 2000,
+        paymentMethod: "mobile_payment",
+        description: "Acepto transferencia SPEI o pago por Mercado Pago. Horario: 9am-9pm CDT. Respuesta rápida.",
+        status: "ACTIVE",
+      },
+      {
+        userId: p2pUsers[3].id,
+        type: "BUY",
+        amount: 300,
+        price: 0.80,
+        currency: "USD",
+        minAmount: 10,
+        maxAmount: 300,
+        paymentMethod: "bank_transfer",
+        description: "Pago por transferencia bancaria Argentina (CBU/CVU) o Mercado Pago. Monto mínimo 10 FLOW.",
+        status: "ACTIVE",
+      },
+      {
+        userId: p2pUsers[4].id,
+        type: "SELL",
+        amount: 5000,
+        price: 4.25,
+        currency: "BRL",
+        minAmount: 500,
+        maxAmount: 5000,
+        paymentMethod: "mobile_payment",
+        description: "PIX instantâneo. Envie o comprovante pelo chat. Disponível 24h.",
+        status: "ACTIVE",
+      },
+      {
+        userId: p2pUsers[0].id,
+        type: "BUY",
+        amount: 800,
+        price: 3200,
+        currency: "COP",
+        minAmount: 100,
+        maxAmount: 800,
+        paymentMethod: "bank_transfer",
+        description: "Compro FLOW a 3.200 COP por unidad. Pago Nequi o Daviplata al instante. Solo montos mayores a 100 FLOW.",
+        status: "ACTIVE",
+      },
+      {
+        userId: demoUser.id,
+        type: "SELL",
+        amount: 150,
+        price: 0.88,
+        currency: "USD",
+        minAmount: 10,
+        maxAmount: 150,
+        paymentMethod: "bank_transfer",
+        description: "Vendo FLOW rápido. Acepto Zelle, Wire o ACH. Horario flexible.",
+        status: "ACTIVE",
+      },
+      {
+        userId: p2pUsers[2].id,
+        type: "BUY",
+        amount: 3000,
+        price: 14.20,
+        currency: "MXN",
+        minAmount: 500,
+        maxAmount: 3000,
+        paymentMethod: "bank_transfer",
+        description: "Compro FLOW en volumen. SPEI inmediato. Trader verificado con más de 50 operaciones.",
+        status: "ACTIVE",
+      },
+    ]
+
+    await prisma.p2pListing.createMany({ data: listings })
+    console.log("  ✅ P2P marketplace listings (8 anuncios)")
+  }
 
   console.log("\n🎉 Seed completed!")
   console.log("   Admin login: admin@sms2flow.com / Admin123!")

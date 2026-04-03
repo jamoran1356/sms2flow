@@ -315,19 +315,19 @@ export default function P2PMarketplacePage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm bg-white">
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold text-gray-900">{stats.totalListings}</p>
             <p className="text-xs text-gray-500">Anuncios activos</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm bg-white">
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold text-green-600">{stats.buyOrders}</p>
             <p className="text-xs text-gray-500">Compran FLOW</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm bg-white">
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold text-red-500">{stats.sellOrders}</p>
             <p className="text-xs text-gray-500">Venden FLOW</p>
@@ -383,7 +383,7 @@ export default function P2PMarketplacePage() {
               : "?"
 
             return (
-              <Card key={listing.id} className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <Card key={listing.id} className="border-0 shadow-md hover:shadow-lg transition-shadow bg-white">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <Badge className={isBuy ? "bg-green-500" : "bg-red-500"}>
@@ -464,7 +464,7 @@ export default function P2PMarketplacePage() {
           })}
         </div>
       ) : (
-        <Card className="border-0 shadow-md">
+        <Card className="border-0 shadow-md bg-white">
           <CardContent className="py-16 text-center">
             <ArrowLeftRight className="h-12 w-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500 text-lg font-medium">No hay anuncios activos</p>
