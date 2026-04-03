@@ -331,26 +331,6 @@ export default function SmsSimulatorPage() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Integration Info */}
-          <Card className="bg-white border-0 shadow-md">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Integracion Twilio</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-gray-600 space-y-2">
-              <p>
-                Este simulador usa el mismo procesador de comandos que el webhook de Twilio.
-                Para activar SMS reales:
-              </p>
-              <ol className="list-decimal pl-4 space-y-1">
-                <li>Configura tus credenciales Twilio en <strong>Admin → Configuracion</strong></li>
-                <li>Configura el webhook en Twilio Console:</li>
-              </ol>
-              <code className="block bg-gray-100 rounded px-3 py-2 text-xs font-mono break-all">
-                POST https://tu-dominio.com/api/sms/twilio
-              </code>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
