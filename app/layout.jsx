@@ -3,14 +3,13 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import AuthProvider from "@/components/auth-provider"
 import { LanguageProvider } from "@/components/language-provider"
-import LanguageSwitch from "@/components/language-switch"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "sms2flow - SMS Crypto Payments",
+  title: "sms2flow - Pagos Cripto por SMS",
   description:
-    "Send and receive Flow blockchain tokens through simple SMS messages. Bringing crypto to everyone, one text at a time.",
+    "Envía y recibe tokens Flow a través de simples mensajes SMS. Llevando cripto a todos, un mensaje a la vez.",
 }
 
 export default function RootLayout({ children }) {
@@ -20,7 +19,6 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <LanguageProvider>
             <ThemeProvider attribute="class" defaultTheme="light">
-              <LanguageSwitch />
               {children}
             </ThemeProvider>
           </LanguageProvider>

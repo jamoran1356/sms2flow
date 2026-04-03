@@ -21,8 +21,10 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useLanguage } from "@/components/language-provider"
 
 export default function SMSPayments() {
+  const { t, locale } = useLanguage()
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
   const [phone, setPhone] = useState("")
@@ -99,8 +101,8 @@ export default function SMSPayments() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Pagos SMS</h1>
-          <p className="text-gray-500 mt-1">Envía FLOW por SMS a cualquier número</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("smsPayments.title")}</h1>
+          <p className="text-gray-500 mt-1">{t("smsPayments.subtitle")}</p>
         </div>
       </div>
 
@@ -110,31 +112,31 @@ export default function SMSPayments() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Send className="h-5 w-5 text-blue-600" />
-              Enviar Pago por SMS
+              {t("smsPayments.sendTitle")}
             </CardTitle>
-            <CardDescription>Transfiere FLOW a un número de teléfono</CardDescription>
+            <CardDescription>{t("smsPayments.sendDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Número de Teléfono</Label>
+              <Label>{t("smsPayments.phoneLabel")}</Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                 <Input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+34 612 345 678"
+                  placeholder={t("smsPayments.phonePlaceholder")}
                   className="pl-10"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Cantidad (FLOW)</Label>
+              <Label>{t("smsPayments.amountLabel")}</Label>
               <Input
                 type="number"
                 step="0.01"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00"
+                placeholder={t("smsPayments.amountPlaceholder")}
               />
             </div>
             <Button
@@ -142,8 +144,8 @@ export default function SMSPayments() {
               onClick={handleSendSms}
               disabled={sending || !phone || !amount}
             >
-              {sending ? "Enviando..." : (
-                <><Send className="h-4 w-4 mr-2" /> Enviar por SMS</>
+              {sending ? t("smsPayments.sending") : (
+                <><Send className="h-4 w-4 mr-2" /> {t("smsPayments.sendButton")}</>
               )}
             </Button>
           </CardContent>
@@ -152,14 +154,14 @@ export default function SMSPayments() {
         {/* Comandos SMS */}
         <Card className="border-0 shadow-md">
           <CardHeader>
-            <CardTitle>Comandos SMS</CardTitle>
-            <CardDescription>Usa estos comandos desde tu teléfono</CardDescription>
+            <CardTitle>{t("smsPayments.commandsTitle")}</CardTitle>
+            <CardDescription>{t("smsPayments.commandsDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Alert className="bg-blue-50 border-blue-200">
               <MessageSquare className="h-4 w-4 text-blue-600" />
               <AlertDescription className="text-blue-800">
-                Los pagos SMS se procesan en Flow blockchain con transacciones rápidas y bajas comisiones.
+                {t("smsPayments.commandsAlert")}
               </AlertDescription>
             </Alert>
 
@@ -192,19 +194,19 @@ export default function SMSPayments() {
       {/* Historial */}
       <Card className="border-0 shadow-md">
         <CardHeader>
-          <CardTitle>Historial de Pagos SMS</CardTitle>
-          <CardDescription>Transacciones SMS en Flow Network</CardDescription>
+          <CardTitle>{t("smsPayments.historyTitle")}</CardTitle>
+          <CardDescription>{t("smsPayments.historyDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           {transactions.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Destino</TableHead>
-                  <TableHead>Cantidad</TableHead>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>TX Hash</TableHead>
+                  <TableHead>{t("smsPayments.historyHeaders.status")}</TableHead>
+                  <TableHead>{t("smsPayments.historyHeaders.dest")}</TableHead>
+                  <TableHead>{t("smsPayments.historyHeaders.amount")}</TableHead>
+                  <TableHead>{t("smsPayments.historyHeaders.date")}</TableHead>
+                  <TableHead>{t("smsPayments.historyHeaders.txHash")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -214,13 +216,13 @@ export default function SMSPayments() {
                       <div className="flex items-center gap-2">
                         {getStatusIcon(tx.status)}
                         <Badge variant={tx.status === "COMPLETED" ? "default" : "secondary"}>
-                          {tx.status === "COMPLETED" ? "Completada" : tx.status === "PENDING" ? "Pendiente" : "Fallida"}
+                          {tx.status === "COMPLETED" ? t("common.status.completed") : tx.status === "PENDING" ? t("common.status.pending") : t("common.status.failed")}
                         </Badge>
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-xs">{tx.toAddress || tx.description || "—"}</TableCell>
                     <TableCell className="font-medium">{parseFloat(tx.amount).toFixed(2)} FLOW</TableCell>
-                    <TableCell className="text-sm">{new Date(tx.createdAt).toLocaleString("es-ES")}</TableCell>
+                    <TableCell className="text-sm">{new Date(tx.createdAt).toLocaleString(locale === "es" ? "es-ES" : "en-US")}</TableCell>
                     <TableCell>
                       {tx.txHash ? (
                         <div className="flex items-center gap-1">
@@ -238,7 +240,7 @@ export default function SMSPayments() {
           ) : (
             <div className="text-center py-8 text-gray-500">
               <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p>No hay transacciones SMS aún</p>
+              <p>{t("smsPayments.noHistory")}</p>
             </div>
           )}
         </CardContent>

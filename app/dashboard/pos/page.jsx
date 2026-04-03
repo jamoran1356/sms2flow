@@ -22,8 +22,10 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useLanguage } from "@/components/language-provider"
 
 export default function POSPage() {
+  const { t } = useLanguage()
   const [searchQuery, setSearchQuery] = useState("")
 
   // Datos de ejemplo para ventas recientes
@@ -117,16 +119,16 @@ export default function POSPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Punto de Venta</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t("pos.title")}</h1>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm">
             <Clock className="mr-2 h-4 w-4" />
-            Historial
+            {t("pos.history")}
           </Button>
           <Button size="sm" className="bg-[#0a2463] hover:bg-[#0a2463]/90" asChild>
             <Link href="/dashboard/pos/new-sale">
               <ShoppingCart className="mr-2 h-4 w-4" />
-              Nueva Venta
+              {t("pos.newSale")}
             </Link>
           </Button>
         </div>
@@ -135,42 +137,42 @@ export default function POSPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ventas Hoy</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("pos.salesToday")}</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$1,234.56</div>
-            <p className="text-xs text-muted-foreground">+15.3% desde ayer</p>
+            <p className="text-xs text-muted-foreground">+15.3% {t("pos.fromYesterday")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Transacciones</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("pos.txCount")}</CardTitle>
             <Receipt className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">24</div>
-            <p className="text-xs text-muted-foreground">+8 desde ayer</p>
+            <p className="text-xs text-muted-foreground">+8 {t("pos.fromYesterday")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Productos Vendidos</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("pos.productsSold")}</CardTitle>
             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">67</div>
-            <p className="text-xs text-muted-foreground">+12 desde ayer</p>
+            <p className="text-xs text-muted-foreground">+12 {t("pos.fromYesterday")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inventario Bajo</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("pos.lowStock")}</CardTitle>
             <Tag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">5</div>
-            <p className="text-xs text-muted-foreground">Productos por reponer</p>
+            <p className="text-xs text-muted-foreground">{t("pos.toRestock")}</p>
           </CardContent>
         </Card>
       </div>
@@ -179,12 +181,12 @@ export default function POSPage() {
         <Card className="col-span-4">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Ventas Recientes</CardTitle>
-              <CardDescription>Últimas transacciones realizadas en tu punto de venta</CardDescription>
+              <CardTitle>{t("pos.recentSales")}</CardTitle>
+              <CardDescription>{t("pos.recentSalesDesc")}</CardDescription>
             </div>
             <Link href="/dashboard/pos/sales">
               <Button variant="outline" size="sm">
-                Ver Todas
+                {t("pos.viewAll")}
               </Button>
             </Link>
           </CardHeader>
@@ -192,12 +194,12 @@ export default function POSPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Monto</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Método</TableHead>
+                  <TableHead>{t("pos.headers.id")}</TableHead>
+                  <TableHead>{t("pos.headers.customer")}</TableHead>
+                  <TableHead>{t("pos.headers.date")}</TableHead>
+                  <TableHead>{t("pos.headers.amount")}</TableHead>
+                  <TableHead>{t("pos.headers.status")}</TableHead>
+                  <TableHead>{t("pos.headers.method")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -219,7 +221,7 @@ export default function POSPage() {
                             : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
                         }`}
                       >
-                        {sale.status === "completed" ? "Completada" : "Pendiente"}
+                        {sale.status === "completed" ? t("common.status.completed") : t("common.status.pending")}
                       </Badge>
                     </TableCell>
                     <TableCell>{sale.paymentMethod}</TableCell>
@@ -232,32 +234,32 @@ export default function POSPage() {
 
         <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Acciones Rápidas</CardTitle>
-            <CardDescription>Accede rápidamente a las funciones más utilizadas</CardDescription>
+            <CardTitle>{t("pos.quickActions")}</CardTitle>
+            <CardDescription>{t("pos.quickActionsDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             <Button className="w-full justify-start bg-[#0a2463] hover:bg-[#0a2463]/90" asChild>
               <Link href="/dashboard/pos/new-sale">
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                Nueva Venta
+                {t("pos.actions.newSale")}
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/dashboard/pos/inventory">
                 <Plus className="mr-2 h-5 w-5" />
-                Añadir Producto
+                {t("pos.actions.addProduct")}
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/dashboard/pos/inventory">
                 <Package2 className="mr-2 h-5 w-5" />
-                Gestionar Inventario
+                {t("pos.actions.manageInventory")}
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/dashboard/pos/reports">
                 <BarChart3 className="mr-2 h-5 w-5" />
-                Ver Informes
+                {t("pos.actions.viewReports")}
               </Link>
             </Button>
           </CardContent>
@@ -266,20 +268,20 @@ export default function POSPage() {
 
       <Tabs defaultValue="products" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="products">Productos Populares</TabsTrigger>
-          <TabsTrigger value="orders">Pedidos Pendientes</TabsTrigger>
+          <TabsTrigger value="products">{t("pos.popularProducts")}</TabsTrigger>
+          <TabsTrigger value="orders">{t("pos.pendingOrders")}</TabsTrigger>
         </TabsList>
         <TabsContent value="products" className="space-y-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Productos Más Vendidos</CardTitle>
-                <CardDescription>Los productos con mayor rotación en tu inventario</CardDescription>
+                <CardTitle>{t("pos.topProductsTitle")}</CardTitle>
+                <CardDescription>{t("pos.topProductsDesc")}</CardDescription>
               </div>
               <div className="relative w-64">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar productos..."
+                  placeholder={t("pos.searchProducts")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-8"
@@ -290,12 +292,12 @@ export default function POSPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Producto</TableHead>
-                    <TableHead>Categoría</TableHead>
-                    <TableHead>Precio</TableHead>
-                    <TableHead>Stock</TableHead>
-                    <TableHead>Vendidos</TableHead>
+                    <TableHead>{t("pos.productHeaders.id")}</TableHead>
+                    <TableHead>{t("pos.productHeaders.product")}</TableHead>
+                    <TableHead>{t("pos.productHeaders.category")}</TableHead>
+                    <TableHead>{t("pos.productHeaders.price")}</TableHead>
+                    <TableHead>{t("pos.productHeaders.stock")}</TableHead>
+                    <TableHead>{t("pos.productHeaders.sold")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -319,10 +321,10 @@ export default function POSPage() {
               </Table>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <div className="text-sm text-slate-500">Mostrando 3 de 120 productos</div>
+              <div className="text-sm text-slate-500">{t("pos.showingProducts", { n: 3, total: 120 })}</div>
               <Link href="/dashboard/pos/inventory">
                 <Button variant="outline" size="sm">
-                  Ver Inventario Completo
+                  {t("pos.viewInventory")}
                 </Button>
               </Link>
             </CardFooter>
@@ -331,19 +333,19 @@ export default function POSPage() {
         <TabsContent value="orders" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Pedidos Pendientes</CardTitle>
-              <CardDescription>Pedidos que requieren procesamiento o envío</CardDescription>
+              <CardTitle>{t("pos.pendingOrdersTitle")}</CardTitle>
+              <CardDescription>{t("pos.pendingOrdersDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Monto</TableHead>
-                    <TableHead>Artículos</TableHead>
-                    <TableHead>Estado</TableHead>
+                    <TableHead>{t("pos.orderHeaders.id")}</TableHead>
+                    <TableHead>{t("pos.orderHeaders.customer")}</TableHead>
+                    <TableHead>{t("pos.orderHeaders.date")}</TableHead>
+                    <TableHead>{t("pos.orderHeaders.amount")}</TableHead>
+                    <TableHead>{t("pos.orderHeaders.items")}</TableHead>
+                    <TableHead>{t("pos.orderHeaders.status")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -362,7 +364,7 @@ export default function POSPage() {
                               : "bg-amber-100 text-amber-800 hover:bg-amber-100"
                           }`}
                         >
-                          {order.status === "processing" ? "Procesando" : "Enviado"}
+                          {order.status === "processing" ? t("common.status.processing") : t("common.status.shipped")}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -374,7 +376,7 @@ export default function POSPage() {
               <Button variant="outline" size="sm" className="ml-auto" asChild>
                 <Link href="/dashboard/pos/providers">
                   <Truck className="mr-2 h-4 w-4" />
-                  Gestionar Pedidos
+                  {t("pos.manageOrders")}
                 </Link>
               </Button>
             </CardFooter>

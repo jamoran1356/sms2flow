@@ -10,8 +10,10 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
+import { useLanguage } from "@/components/language-provider"
 
 export default function StakingPage() {
+  const { t, locale } = useLanguage()
   const [pools, setPools] = useState([])
   const [positions, setPositions] = useState([])
   const [loading, setLoading] = useState(true)
@@ -83,16 +85,16 @@ export default function StakingPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Staking FLOW</h1>
-          <p className="text-gray-500 mt-1">Genera rendimientos con tus tokens FLOW</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("staking.title")}</h1>
+          <p className="text-gray-500 mt-1">{t("staking.subtitle")}</p>
         </div>
       </div>
 
       {showSuccess && (
         <Alert className="bg-green-50 text-green-800 border-green-200">
           <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertTitle>Staking realizado con éxito</AlertTitle>
-          <AlertDescription>Tu posición ha sido creada. Puedes verla en "Mis Posiciones".</AlertDescription>
+          <AlertTitle>{t("staking.successAlert")}</AlertTitle>
+          <AlertDescription>{t("staking.successMsg")}</AlertDescription>
         </Alert>
       )}
 
@@ -105,7 +107,7 @@ export default function StakingPage() {
                 <TrendingUp className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total en Staking</p>
+                <p className="text-sm text-gray-500">{t("staking.totalStaked")}</p>
                 <p className="text-xl font-bold text-gray-900">{totalStaked.toFixed(4)} FLOW</p>
               </div>
             </div>
@@ -118,7 +120,7 @@ export default function StakingPage() {
                 <Percent className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Recompensas Totales</p>
+                <p className="text-sm text-gray-500">{t("staking.totalRewards")}</p>
                 <p className="text-xl font-bold text-green-600">{totalRewards.toFixed(4)} FLOW</p>
               </div>
             </div>
@@ -131,7 +133,7 @@ export default function StakingPage() {
                 <Info className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Posiciones Activas</p>
+                <p className="text-sm text-gray-500">{t("staking.activePositions")}</p>
                 <p className="text-xl font-bold text-gray-900">{positions.filter((p) => p.status === "ACTIVE").length}</p>
               </div>
             </div>
@@ -144,14 +146,14 @@ export default function StakingPage() {
         <div className="md:col-span-4 space-y-6">
           <Card className="border-0 shadow-md">
             <CardHeader>
-              <CardTitle>Hacer Staking</CardTitle>
-              <CardDescription>Selecciona un pool y la cantidad a depositar</CardDescription>
+              <CardTitle>{t("staking.stakeTitle")}</CardTitle>
+              <CardDescription>{t("staking.stakeDesc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {pools.length > 0 ? (
                 <>
                   <div className="space-y-2">
-                    <Label>Pool de Staking</Label>
+                    <Label>{t("staking.poolLabel")}</Label>
                     <div className="grid gap-2">
                       {pools.map((pool) => (
                         <button
@@ -166,7 +168,7 @@ export default function StakingPage() {
                           <div>
                             <p className="font-medium">{pool.name}</p>
                             <p className="text-xs text-gray-500">
-                              Bloqueo: {pool.lockDays} días | Mín: {parseFloat(pool.minAmount).toFixed(2)} FLOW
+                              {t("staking.lockDays", { n: pool.lockDays, m: parseFloat(pool.minAmount).toFixed(2) })}
                             </p>
                           </div>
                           <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
@@ -181,19 +183,19 @@ export default function StakingPage() {
                     <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div>
-                          <p className="text-gray-600">APY:</p>
+                          <p className="text-gray-600">{t("staking.poolDetail.apy")}</p>
                           <p className="font-medium text-blue-800">{parseFloat(selectedPool.apy).toFixed(1)}%</p>
                         </div>
                         <div>
-                          <p className="text-gray-600">Período de bloqueo:</p>
-                          <p className="font-medium text-blue-800">{selectedPool.lockDays} días</p>
+                          <p className="text-gray-600">{t("staking.poolDetail.lockPeriod")}</p>
+                          <p className="font-medium text-blue-800">{selectedPool.lockDays}{t("staking.poolDetail.lockDays")}</p>
                         </div>
                         <div>
-                          <p className="text-gray-600">Monto mínimo:</p>
+                          <p className="text-gray-600">{t("staking.poolDetail.minAmount")}</p>
                           <p className="font-medium text-blue-800">{parseFloat(selectedPool.minAmount).toFixed(2)} FLOW</p>
                         </div>
                         <div>
-                          <p className="text-gray-600">Capacidad total:</p>
+                          <p className="text-gray-600">{t("staking.poolDetail.maxCapacity")}</p>
                           <p className="font-medium text-blue-800">{parseFloat(selectedPool.maxCapacity || 0).toLocaleString()} FLOW</p>
                         </div>
                       </div>
@@ -201,11 +203,11 @@ export default function StakingPage() {
                   )}
 
                   <div className="space-y-2">
-                    <Label>Cantidad (FLOW)</Label>
+                    <Label>{t("staking.amountLabel")}</Label>
                     <Input
                       type="number"
                       step="0.01"
-                      placeholder={selectedPool ? `Mín. ${parseFloat(selectedPool.minAmount).toFixed(2)}` : "0.00"}
+                      placeholder={selectedPool ? t("staking.minPlaceholder", { n: parseFloat(selectedPool.minAmount).toFixed(2) }) : "0.00"}
                       value={stakingAmount}
                       onChange={(e) => setStakingAmount(e.target.value)}
                     />
@@ -213,7 +215,7 @@ export default function StakingPage() {
                 </>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  No hay pools de staking disponibles en este momento.
+                  {t("staking.noPools")}
                 </div>
               )}
             </CardContent>
@@ -224,8 +226,8 @@ export default function StakingPage() {
                   onClick={handleStake}
                   disabled={isStaking || !stakingAmount || parseFloat(stakingAmount) <= 0}
                 >
-                  {isStaking ? "Procesando..." : (
-                    <>Hacer Staking <ArrowRight className="ml-2 h-4 w-4" /></>
+                  {isStaking ? t("staking.processingStake") : (
+                    <>{t("staking.stakeButton")} <ArrowRight className="ml-2 h-4 w-4" /></>
                   )}
                 </Button>
               </CardFooter>
@@ -237,8 +239,8 @@ export default function StakingPage() {
         <div className="md:col-span-3 space-y-6">
           <Tabs defaultValue="active" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="active">Activas</TabsTrigger>
-              <TabsTrigger value="completed">Completadas</TabsTrigger>
+              <TabsTrigger value="active">{t("staking.activeTabs")}</TabsTrigger>
+              <TabsTrigger value="completed">{t("staking.completedTabs")}</TabsTrigger>
             </TabsList>
             <TabsContent value="active" className="space-y-4 pt-4">
               {positions.filter((p) => p.status === "ACTIVE").length > 0 ? (
@@ -246,32 +248,32 @@ export default function StakingPage() {
                   <Card key={pos.id} className="border-0 shadow-md">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-base">{pos.pool?.name || "Staking FLOW"}</CardTitle>
-                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Activo</Badge>
+                        <CardTitle className="text-base">{pos.pool?.name || t("staking.stakingFallback")}</CardTitle>
+                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100">{t("common.status.active")}</Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Cantidad:</span>
+                          <span className="text-gray-600">{t("staking.amountDetail")}</span>
                           <span className="font-medium">{parseFloat(pos.amount).toFixed(4)} FLOW</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">APY:</span>
+                          <span className="text-gray-600">{t("staking.apyDetail")}</span>
                           <span className="font-medium text-green-600">{parseFloat(pos.pool?.apy || 0).toFixed(1)}%</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Inicio:</span>
-                          <span className="font-medium">{new Date(pos.startDate).toLocaleDateString("es-ES")}</span>
+                          <span className="text-gray-600">{t("staking.startDate")}</span>
+                          <span className="font-medium">{new Date(pos.startDate).toLocaleDateString(locale === "es" ? "es-ES" : "en-US")}</span>
                         </div>
                         {pos.endDate && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Desbloqueo:</span>
-                            <span className="font-medium">{new Date(pos.endDate).toLocaleDateString("es-ES")}</span>
+                            <span className="text-gray-600">{t("staking.unlockDate")}</span>
+                            <span className="font-medium">{new Date(pos.endDate).toLocaleDateString(locale === "es" ? "es-ES" : "en-US")}</span>
                           </div>
                         )}
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Recompensas:</span>
+                          <span className="text-gray-600">{t("staking.rewardsDetail")}</span>
                           <span className="font-medium text-green-600">{parseFloat(pos.rewards || 0).toFixed(4)} FLOW</span>
                         </div>
                       </div>
@@ -281,7 +283,7 @@ export default function StakingPage() {
               ) : (
                 <Card className="border-0 shadow-md">
                   <CardContent className="py-8 text-center text-gray-500">
-                    No tienes posiciones de staking activas.
+                    {t("staking.noActivePositions")}
                   </CardContent>
                 </Card>
               )}
@@ -292,16 +294,16 @@ export default function StakingPage() {
                   <Card key={pos.id} className="border-0 shadow-md">
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium">{pos.pool?.name || "Staking FLOW"}</span>
-                        <Badge variant="secondary">Completado</Badge>
+                        <span className="font-medium">{pos.pool?.name || t("staking.stakingFallback")}</span>
+                        <Badge variant="secondary">{t("staking.completedBadge")}</Badge>
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
-                          <p className="text-gray-600">Cantidad:</p>
+                          <p className="text-gray-600">{t("staking.amountDetail")}</p>
                           <p className="font-medium">{parseFloat(pos.amount).toFixed(4)} FLOW</p>
                         </div>
                         <div>
-                          <p className="text-gray-600">Recompensa:</p>
+                          <p className="text-gray-600">{t("staking.rewardDetail")}</p>
                           <p className="font-medium text-green-600">{parseFloat(pos.rewards || 0).toFixed(4)} FLOW</p>
                         </div>
                       </div>
@@ -311,7 +313,7 @@ export default function StakingPage() {
               ) : (
                 <Card className="border-0 shadow-md">
                   <CardContent className="py-8 text-center text-gray-500">
-                    No tienes posiciones completadas.
+                    {t("staking.noCompletedPositions")}
                   </CardContent>
                 </Card>
               )}

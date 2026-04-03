@@ -7,10 +7,13 @@ import { useState } from "react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/components/language-provider"
+import LanguageSwitch from "@/components/language-switch"
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { t } = useLanguage()
 
   // Don't show navbar on certain paths
   const hideOnPaths = ["/login", "/register", "/dashboard", "/admin"]
@@ -22,12 +25,12 @@ export function Navbar() {
   const closeMenu = () => setMenuOpen(false)
 
   const navigation = [
-    { name: "Home", href: "/" },
-    { name: "Machines", href: "/machines" },
-    { name: "Features", href: "/#features" },
-    { name: "Pricing", href: "/#pricing" },
-    { name: "About", href: "/#about" },
-    { name: "Contact", href: "/#contact" },
+    { name: t("nav.home"), href: "/" },
+    { name: t("nav.machines"), href: "/machines" },
+    { name: t("nav.features"), href: "/#features" },
+    { name: t("nav.pricing"), href: "/#pricing" },
+    { name: t("nav.about"), href: "/#about" },
+    { name: t("nav.contact"), href: "/#contact" },
   ]
 
   return (
@@ -58,11 +61,12 @@ export function Navbar() {
         </nav>
 
         <div className="hidden md:flex gap-4">
+          <LanguageSwitch />
           <Link href="/login">
-            <Button variant="outline">Log in</Button>
+            <Button variant="outline">{t("nav.signIn")}</Button>
           </Link>
           <Link href="/register">
-            <Button>Sign up</Button>
+            <Button>{t("nav.signUp")}</Button>
           </Link>
         </div>
 
@@ -72,7 +76,7 @@ export function Navbar() {
           onClick={toggleMenu}
           aria-expanded={menuOpen}
         >
-          <span className="sr-only">Toggle menu</span>
+          <span className="sr-only">{t("nav.toggleMenu")}</span>
           {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
@@ -99,11 +103,11 @@ export function Navbar() {
           <div className="flex flex-col gap-2 mt-4">
             <Link href="/login" onClick={closeMenu}>
               <Button variant="outline" className="w-full bg-transparent">
-                Log in
+                {t("nav.signIn")}
               </Button>
             </Link>
             <Link href="/register" onClick={closeMenu}>
-              <Button className="w-full">Sign up</Button>
+              <Button className="w-full">{t("nav.signUp")}</Button>
             </Link>
           </div>
         </div>

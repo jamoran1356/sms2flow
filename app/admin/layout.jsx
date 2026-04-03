@@ -23,11 +23,14 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/components/language-provider"
+import LanguageSwitch from "@/components/language-switch"
 
 export default function AdminLayout({ children }) {
   const { data: session, status } = useSession()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
+  const { t } = useLanguage()
 
   if (pathname === "/admin/login") {
     return children
@@ -54,27 +57,27 @@ export default function AdminLayout({ children }) {
 
   const navigationSections = [
     {
-      title: "PRINCIPAL",
+      title: t("admin.categories.main"),
       items: [
-        { name: "Panel", href: "/admin", icon: LayoutDashboard },
-        { name: "Transacciones", href: "/admin/transactions", icon: CreditCard },
-        { name: "Usuarios", href: "/admin/users", icon: Users },
-        { name: "Staking", href: "/admin/staking", icon: TrendingUp },
+        { name: t("admin.menu.panel"), href: "/admin", icon: LayoutDashboard },
+        { name: t("admin.menu.transactions"), href: "/admin/transactions", icon: CreditCard },
+        { name: t("admin.menu.users"), href: "/admin/users", icon: Users },
+        { name: t("admin.menu.staking"), href: "/admin/staking", icon: TrendingUp },
       ],
     },
     {
-      title: "PAGOS",
+      title: t("admin.categories.payments"),
       items: [
-        { name: "Pagos SMS", href: "/admin/sms-payments", icon: MessageSquare },
-        { name: "Billetera", href: "/admin/wallet", icon: Wallet },
+        { name: t("admin.menu.smsPayments"), href: "/admin/sms-payments", icon: MessageSquare },
+        { name: t("admin.menu.wallet"), href: "/admin/wallet", icon: Wallet },
       ],
     },
     {
-      title: "SISTEMA",
+      title: t("admin.categories.system"),
       items: [
-        { name: "Redes", href: "/admin/settings", icon: Globe },
-        { name: "Seguridad", href: "/admin/security", icon: Shield },
-        { name: "Configuración", href: "/admin/settings", icon: Settings },
+        { name: t("admin.menu.networks"), href: "/admin/settings", icon: Globe },
+        { name: t("admin.menu.security"), href: "/admin/security", icon: Shield },
+        { name: t("admin.menu.settings"), href: "/admin/settings", icon: Settings },
       ],
     },
   ]
@@ -159,7 +162,7 @@ export default function AdminLayout({ children }) {
               {initials}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{session.user?.name || "Admin"}</p>
+              <p className="text-sm font-medium text-white truncate">{session.user?.name || t("admin.adminFallback")}</p>
               <p className="text-[11px] text-blue-300/60 truncate">{session.user?.email}</p>
             </div>
           </div>
@@ -168,7 +171,7 @@ export default function AdminLayout({ children }) {
             className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-red-300/80 hover:bg-red-500/10 hover:text-red-300 transition-colors"
           >
             <LogOut className="h-4 w-4" />
-            Cerrar Sesión
+            {t("admin.logout")}
           </button>
         </div>
       </div>
@@ -181,9 +184,10 @@ export default function AdminLayout({ children }) {
             <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
               <Menu className="h-5 w-5" />
             </Button>
-            <h2 className="text-sm font-semibold text-gray-700 hidden sm:block">Administración SMS2Flow</h2>
+            <h2 className="text-sm font-semibold text-gray-700 hidden sm:block">{t("admin.headerTitle")}</h2>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSwitch />
             <Button variant="ghost" size="sm" className="relative">
               <Bell className="h-4 w-4 text-gray-500" />
               <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 bg-red-500 rounded-full text-[9px] text-white flex items-center justify-center">3</span>

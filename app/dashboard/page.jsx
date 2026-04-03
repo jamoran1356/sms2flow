@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { useLanguage } from "@/components/language-provider"
 
 export default function DashboardPage() {
+  const { t, locale } = useLanguage()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -40,33 +42,33 @@ export default function DashboardPage() {
 
   const stats = [
     {
-      title: "Balance Total",
+      title: t("dashboard.totalBalance"),
       value: `${(data?.totalBalance || 0).toFixed(4)} FLOW`,
-      description: `${data?.wallets?.length || 0} billetera(s) activa(s)`,
+      description: t("dashboard.walletsActive", { n: data?.wallets?.length || 0 }),
       icon: Wallet,
       color: "text-blue-600",
       bg: "bg-blue-50",
     },
     {
-      title: "Transacciones",
+      title: t("dashboard.transactions"),
       value: `${data?.transactionsCount || 0}`,
-      description: `${data?.txGrowth > 0 ? "+" : ""}${data?.txGrowth || 0}% este mes`,
+      description: t("dashboard.thisMonth", { n: `${data?.txGrowth > 0 ? "+" : ""}${data?.txGrowth || 0}` }),
       icon: CreditCard,
       color: "text-green-600",
       bg: "bg-green-50",
     },
     {
-      title: "Clientes SMS",
+      title: t("dashboard.smsCustomers"),
       value: `${data?.customersCount || 0}`,
-      description: "Contactos registrados",
+      description: t("dashboard.registeredContacts"),
       icon: Users,
       color: "text-purple-600",
       bg: "bg-purple-50",
     },
     {
-      title: "En Staking",
+      title: t("dashboard.inStaking"),
       value: `${(data?.totalStaked || 0).toFixed(2)} FLOW`,
-      description: `${data?.stakingPositions?.length || 0} posición(es) activa(s)`,
+      description: t("dashboard.positionsActive", { n: data?.stakingPositions?.length || 0 }),
       icon: TrendingUp,
       color: "text-orange-600",
       bg: "bg-orange-50",
@@ -77,20 +79,20 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Panel de Control</h1>
-          <p className="text-gray-500 mt-1">Resumen de tu actividad en SMS2Flow</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("dashboard.title")}</h1>
+          <p className="text-gray-500 mt-1">{t("dashboard.subtitle")}</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/dashboard/wallet">
             <Button variant="outline" size="sm" className="shadow-sm">
               <Wallet className="mr-2 h-4 w-4" />
-              Billetera
+              {t("dashboard.walletBtn")}
             </Button>
           </Link>
           <Link href="/dashboard/transactions">
             <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg hover:from-blue-700 hover:to-indigo-700">
               <DollarSign className="mr-2 h-4 w-4" />
-              Nueva Transacción
+              {t("dashboard.newTransaction")}
             </Button>
           </Link>
         </div>
@@ -119,9 +121,9 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Wallet className="h-5 w-5 text-blue-600" />
-              Tus Billeteras Flow
+              {t("dashboard.yourWallets")}
             </CardTitle>
-            <CardDescription>Direcciones de billetera asociadas a tu cuenta</CardDescription>
+            <CardDescription>{t("dashboard.walletsDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -131,7 +133,7 @@ export default function DashboardPage() {
                     <code className="text-sm font-mono text-gray-800">{wallet.address}</code>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="outline" className="text-xs">{wallet.network}</Badge>
-                      {wallet.isDefault && <Badge className="bg-blue-600 text-xs">Principal</Badge>}
+                      {wallet.isDefault && <Badge className="bg-blue-600 text-xs">{t("common.principal")}</Badge>}
                     </div>
                   </div>
                   <div className="text-right">
@@ -146,14 +148,14 @@ export default function DashboardPage() {
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="bg-white border shadow-sm">
-          <TabsTrigger value="overview">Resumen</TabsTrigger>
-          <TabsTrigger value="recent">Transacciones Recientes</TabsTrigger>
+          <TabsTrigger value="overview">{t("dashboard.summaryTab")}</TabsTrigger>
+          <TabsTrigger value="recent">{t("dashboard.recentTxTab")}</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-4 border-0 shadow-md">
               <CardHeader>
-                <CardTitle>Actividad Reciente</CardTitle>
+                <CardTitle>{t("dashboard.recentActivity")}</CardTitle>
               </CardHeader>
               <CardContent>
                 {data?.recentTransactions?.length > 0 ? (
@@ -166,13 +168,13 @@ export default function DashboardPage() {
                           </div>
                           <div>
                             <p className="text-sm font-medium">{tx.description || tx.type}</p>
-                            <p className="text-xs text-gray-500">{new Date(tx.createdAt).toLocaleString("es-ES")}</p>
+                            <p className="text-xs text-gray-500">{new Date(tx.createdAt).toLocaleString(locale === "es" ? "es-ES" : "en-US")}</p>
                           </div>
                         </div>
                         <div className="text-right">
                           <p className="font-semibold">{parseFloat(tx.amount).toFixed(4)} {tx.currency}</p>
                           <Badge variant="outline" className={`text-xs ${tx.status === "COMPLETED" ? "text-green-600 border-green-200" : "text-yellow-600 border-yellow-200"}`}>
-                            {tx.status === "COMPLETED" ? "Completada" : tx.status === "PENDING" ? "Pendiente" : tx.status}
+                            {tx.status === "COMPLETED" ? t("common.status.completed") : tx.status === "PENDING" ? t("common.status.pending") : tx.status}
                           </Badge>
                         </div>
                       </div>
@@ -181,8 +183,8 @@ export default function DashboardPage() {
                 ) : (
                   <div className="text-center py-8 text-gray-500">
                     <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                    <p>No hay transacciones aún</p>
-                    <p className="text-sm mt-1">Realiza tu primera transacción para verla aquí</p>
+                    <p>{t("dashboard.noTransactions")}</p>
+                    <p className="text-sm mt-1">{t("dashboard.firstTransaction")}</p>
                   </div>
                 )}
               </CardContent>
@@ -190,7 +192,7 @@ export default function DashboardPage() {
                 <CardFooter>
                   <Link href="/dashboard/transactions" className="w-full">
                     <Button variant="outline" size="sm" className="w-full">
-                      Ver Todas <ArrowUpRight className="ml-2 h-4 w-4" />
+                      {t("common.viewAll")} <ArrowUpRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
                 </CardFooter>
@@ -198,8 +200,8 @@ export default function DashboardPage() {
             </Card>
             <Card className="col-span-3 border-0 shadow-md">
               <CardHeader>
-                <CardTitle>Staking Activo</CardTitle>
-                <CardDescription>Tus posiciones de staking en Flow</CardDescription>
+                <CardTitle>{t("dashboard.activeStaking")}</CardTitle>
+                <CardDescription>{t("dashboard.stakingDesc")}</CardDescription>
               </CardHeader>
               <CardContent>
                 {data?.stakingPositions?.length > 0 ? (
@@ -207,7 +209,7 @@ export default function DashboardPage() {
                     {data.stakingPositions.map((pos) => (
                       <div key={pos.id} className="p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center justify-between">
-                          <p className="font-medium">{pos.pool?.name || "Pool"}</p>
+                          <p className="font-medium">{pos.pool?.name || t("dashboard.poolFallback")}</p>
                           <Badge className="bg-green-100 text-green-700">{pos.pool?.apyRate}% APY</Badge>
                         </div>
                         <div className="flex justify-between mt-2 text-sm text-gray-600">
@@ -220,9 +222,9 @@ export default function DashboardPage() {
                 ) : (
                   <div className="text-center py-6 text-gray-500">
                     <TrendingUp className="h-10 w-10 text-gray-300 mx-auto mb-2" />
-                    <p className="text-sm">Sin posiciones de staking</p>
+                    <p className="text-sm">{t("dashboard.noStakingPositions")}</p>
                     <Link href="/dashboard/staking">
-                      <Button size="sm" variant="link" className="text-blue-600">Explorar pools</Button>
+                      <Button size="sm" variant="link" className="text-blue-600">{t("dashboard.explorePools")}</Button>
                     </Link>
                   </div>
                 )}
@@ -233,11 +235,11 @@ export default function DashboardPage() {
         <TabsContent value="recent">
           <Card className="border-0 shadow-md">
             <CardHeader>
-              <CardTitle>Historial Completo</CardTitle>
+              <CardTitle>{t("dashboard.fullHistory")}</CardTitle>
             </CardHeader>
             <CardContent>
               <Link href="/dashboard/transactions">
-                <Button className="bg-blue-600 hover:bg-blue-700">Ver todas las transacciones</Button>
+                <Button className="bg-blue-600 hover:bg-blue-700">{t("dashboard.viewAllTx")}</Button>
               </Link>
             </CardContent>
           </Card>

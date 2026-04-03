@@ -27,16 +27,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useLanguage } from "@/components/language-provider"
 
-function formatBalance(value) {
+function formatBalance(value, locale) {
   const num = parseFloat(value || 0)
-  return new Intl.NumberFormat("es-ES", {
+  return new Intl.NumberFormat(locale === "es" ? "es-ES" : "en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 4,
   }).format(num)
 }
 
 export default function WalletPage() {
+  const { t, locale } = useLanguage()
   const [wallets, setWallets] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -154,29 +156,29 @@ export default function WalletPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Mi Billetera</h1>
-          <p className="text-gray-500 mt-1">Gestiona tus billeteras Flow</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("wallet.title")}</h1>
+          <p className="text-gray-500 mt-1">{t("wallet.subtitle")}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-            Actualizar
+            {t("wallet.refresh")}
           </Button>
           <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                 <ArrowUp className="h-4 w-4 mr-2" />
-                Enviar FLOW
+                {t("wallet.sendFlow")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Enviar FLOW</DialogTitle>
-                <DialogDescription>Transfiere tokens FLOW a otra dirección</DialogDescription>
+                <DialogTitle>{t("wallet.sendTitle")}</DialogTitle>
+                <DialogDescription>{t("wallet.sendDesc")}</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>Dirección de destino</Label>
+                  <Label>{t("wallet.destAddress")}</Label>
                   <Input
                     placeholder="0x..."
                     value={sendAddress}
@@ -185,8 +187,8 @@ export default function WalletPage() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <Label>Cantidad</Label>
-                    <span className="text-xs text-gray-500">Disponible: {formatBalance(totalBalance)} FLOW</span>
+                    <Label>{t("wallet.amount")}</Label>
+                    <span className="text-xs text-gray-500">{t("wallet.available", { n: formatBalance(totalBalance, locale) })}</span>
                   </div>
                   <Input
                     type="number"
@@ -198,9 +200,9 @@ export default function WalletPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setSendDialogOpen(false)}>Cancelar</Button>
+                <Button variant="outline" onClick={() => setSendDialogOpen(false)}>{t("common.cancel")}</Button>
                 <Button onClick={handleSend} disabled={sending || !sendAddress || !sendAmount} className="bg-blue-600 hover:bg-blue-700">
-                  {sending ? "Enviando..." : "Confirmar Envío"}
+                  {sending ? t("wallet.sending") : t("wallet.confirmSend")}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -212,9 +214,9 @@ export default function WalletPage() {
       <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
         <CardContent className="py-8">
           <div className="text-center">
-            <p className="text-blue-100 text-sm font-medium">Balance Total</p>
-            <p className="text-4xl font-bold mt-2">{formatBalance(totalBalance)} FLOW</p>
-            <p className="text-blue-200 text-sm mt-1">{wallets.length} billetera(s) activa(s)</p>
+            <p className="text-blue-100 text-sm font-medium">{t("wallet.totalBalance")}</p>
+            <p className="text-4xl font-bold mt-2">{formatBalance(totalBalance, locale)} FLOW</p>
+            <p className="text-blue-200 text-sm mt-1">{t("wallet.walletsCount", { n: wallets.length })}</p>
           </div>
         </CardContent>
       </Card>
@@ -222,10 +224,10 @@ export default function WalletPage() {
       {/* Wallets */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Mis Billeteras</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t("wallet.myWallets")}</h2>
           <Button variant="outline" size="sm" onClick={handleCreateWallet} disabled={creating}>
             <Plus className="h-4 w-4 mr-2" />
-            {creating ? "Creando..." : "Nueva Billetera"}
+            {creating ? t("wallet.creating") : t("wallet.newWallet")}
           </Button>
         </div>
 
@@ -240,10 +242,10 @@ export default function WalletPage() {
                         <Wallet className="h-4 w-4 text-blue-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-sm">{wallet.network} Wallet</CardTitle>
+                        <CardTitle className="text-sm">{wallet.network}{t("wallet.walletSuffix")}</CardTitle>
                         <CardDescription className="text-xs">
-                          {wallet.isDefault && <Badge className="bg-blue-600 text-xs mr-1">Principal</Badge>}
-                          Creada {new Date(wallet.createdAt).toLocaleDateString("es-ES")}
+                          {wallet.isDefault && <Badge className="bg-blue-600 text-xs mr-1">{t("common.principal")}</Badge>}
+                          {t("wallet.createdOn")}{new Date(wallet.createdAt).toLocaleDateString(locale === "es" ? "es-ES" : "en-US")}
                         </CardDescription>
                       </div>
                     </div>
@@ -256,7 +258,7 @@ export default function WalletPage() {
                         disabled={settingDefault === wallet.id}
                       >
                         <Star className="h-3.5 w-3.5 mr-1" />
-                        {settingDefault === wallet.id ? "..." : "Hacer principal"}
+                        {settingDefault === wallet.id ? "..." : t("wallet.makeDefault")}
                       </Button>
                     )}
                   </div>
@@ -275,7 +277,7 @@ export default function WalletPage() {
                       </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-gray-900">{formatBalance(wallet.balance)}</p>
+                      <p className="text-2xl font-bold text-gray-900">{formatBalance(wallet.balance, locale)}</p>
                       <p className="text-sm text-gray-500">FLOW</p>
                     </div>
                   </div>
@@ -287,9 +289,9 @@ export default function WalletPage() {
           <Card className="border-0 shadow-md">
             <CardContent className="py-12 text-center">
               <Wallet className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">No tienes billeteras aún</p>
+              <p className="text-gray-500">{t("wallet.noWallets")}</p>
               <Button size="sm" className="mt-4 bg-blue-600 hover:bg-blue-700" onClick={handleCreateWallet} disabled={creating}>
-                {creating ? "Creando..." : "Crear tu primera billetera"}
+                {creating ? t("wallet.creating") : t("wallet.createFirst")}
               </Button>
             </CardContent>
           </Card>

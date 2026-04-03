@@ -17,8 +17,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { useLanguage } from "@/components/language-provider"
 
 export default function CustomersPage() {
+  const { t, locale } = useLanguage()
   const [customers, setCustomers] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
@@ -86,7 +88,7 @@ export default function CustomersPage() {
     setCreateSuccess("")
 
     if (!newCustomer.name || !newCustomer.phone) {
-      setCreateError("Nombre y teléfono son obligatorios")
+      setCreateError(t("customers.namePhoneRequired"))
       return
     }
 
@@ -103,14 +105,14 @@ export default function CustomersPage() {
       if (res.ok) {
         setNewDialogOpen(false)
         setNewCustomer({ name: "", email: "", phone: "" })
-        setCreateSuccess("Cliente agregado correctamente")
+        setCreateSuccess(t("customers.addedSuccess"))
         fetchCustomers()
       } else {
-        setCreateError(data.error || "No se pudo crear el cliente")
+        setCreateError(data.error || t("customers.createError"))
       }
     } catch (e) {
       console.error("Error creating customer:", e)
-      setCreateError("Error de conexión al crear el cliente")
+      setCreateError(t("customers.connectionError"))
     } finally {
       setCreating(false)
     }
@@ -128,21 +130,21 @@ export default function CustomersPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Clientes</h1>
-          <p className="text-gray-500 mt-1">Gestiona tus clientes y contactos</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("customers.title")}</h1>
+          <p className="text-gray-500 mt-1">{t("customers.subtitle")}</p>
           {createSuccess && <p className="mt-2 text-sm text-green-600">{createSuccess}</p>}
         </div>
         <Dialog open={newDialogOpen} onOpenChange={setNewDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
               <Plus className="mr-2 h-4 w-4" />
-              Nuevo Cliente
+              {t("customers.newCustomer")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Nuevo Cliente</DialogTitle>
-              <DialogDescription>Agrega un nuevo cliente a tu lista</DialogDescription>
+              <DialogTitle>{t("customers.newCustomer")}</DialogTitle>
+              <DialogDescription>{t("customers.addDesc")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               {createError && (
@@ -151,16 +153,16 @@ export default function CustomersPage() {
                 </div>
               )}
               <div className="space-y-2">
-                <Label>Nombre</Label>
-                <Input value={newCustomer.name} onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })} placeholder="Nombre completo" />
+                <Label>{t("customers.nameLabel")}</Label>
+                <Input value={newCustomer.name} onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })} placeholder={t("customers.namePlaceholder")} />
               </div>
               <div className="space-y-2">
-                <Label>Email</Label>
-                <Input type="email" value={newCustomer.email} onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })} placeholder="correo@ejemplo.com" />
+                <Label>{t("customers.emailLabel")}</Label>
+                <Input type="email" value={newCustomer.email} onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })} placeholder={t("customers.emailPlaceholder")} />
               </div>
               <div className="space-y-2">
-                <Label>Teléfono (obligatorio)</Label>
-                <Input value={newCustomer.phone} onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })} placeholder="+34 612 345 678" />
+                <Label>{t("customers.phoneLabel")}</Label>
+                <Input value={newCustomer.phone} onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })} placeholder={t("customers.phonePlaceholder")} />
               </div>
             </div>
             <DialogFooter>
@@ -172,10 +174,10 @@ export default function CustomersPage() {
                   setNewDialogOpen(false)
                 }}
               >
-                Cancelar
+                {t("common.cancel")}
               </Button>
               <Button onClick={handleCreateCustomer} disabled={creating || !newCustomer.name || !newCustomer.phone} className="bg-blue-600 hover:bg-blue-700">
-                {creating ? "Creando..." : "Crear Cliente"}
+                {creating ? t("customers.creating") : t("customers.createButton")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -186,10 +188,10 @@ export default function CustomersPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5 text-blue-600" />
-            Lista de Clientes
+            {t("customers.listTitle")}
           </CardTitle>
           <CardDescription>
-            {customers.length} cliente(s) registrado(s)
+            {t("customers.registeredCount", { n: customers.length })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -197,7 +199,7 @@ export default function CustomersPage() {
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por nombre, email o teléfono..."
+                placeholder={t("customers.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8"
@@ -208,11 +210,11 @@ export default function CustomersPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Teléfono</TableHead>
-                <TableHead>Registrado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead>{t("customers.headers.customer")}</TableHead>
+                <TableHead>{t("customers.headers.email")}</TableHead>
+                <TableHead>{t("customers.headers.phone")}</TableHead>
+                <TableHead>{t("customers.headers.registered")}</TableHead>
+                <TableHead className="text-right">{t("customers.headers.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -239,7 +241,7 @@ export default function CustomersPage() {
                       ) : "—"}
                     </TableCell>
                     <TableCell className="text-gray-500">
-                      {new Date(customer.createdAt).toLocaleDateString("es-ES")}
+                      {new Date(customer.createdAt).toLocaleDateString(locale === "es" ? "es-ES" : "en-US")}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
@@ -248,7 +250,7 @@ export default function CustomersPage() {
                         onClick={() => { setSelectedCustomer(customer); setSendDialogOpen(true) }}
                       >
                         <Send className="h-4 w-4 mr-1" />
-                        Enviar FLOW
+                        {t("customers.sendFlow")}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -256,7 +258,7 @@ export default function CustomersPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    {searchQuery ? "No se encontraron clientes con esa búsqueda." : "No tienes clientes aún. Agrega tu primer cliente."}
+                    {searchQuery ? t("customers.noSearchResults") : t("customers.noCustomers")}
                   </TableCell>
                 </TableRow>
               )}
@@ -265,7 +267,7 @@ export default function CustomersPage() {
         </CardContent>
         <CardFooter className="border-t pt-4">
           <div className="text-sm text-gray-500">
-            Mostrando {filteredCustomers.length} de {customers.length} clientes
+            {t("customers.showingCount", { n: filteredCustomers.length, total: customers.length })}
           </div>
         </CardFooter>
       </Card>
@@ -274,8 +276,8 @@ export default function CustomersPage() {
       <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Enviar FLOW</DialogTitle>
-            <DialogDescription>Envía tokens FLOW a este cliente</DialogDescription>
+            <DialogTitle>{t("customers.sendTitle")}</DialogTitle>
+            <DialogDescription>{t("customers.sendDesc")}</DialogDescription>
           </DialogHeader>
           {selectedCustomer && (
             <div className="space-y-4 py-4">
@@ -284,7 +286,7 @@ export default function CustomersPage() {
                 <p className="text-sm text-gray-500">{selectedCustomer.phone || selectedCustomer.email}</p>
               </div>
               <div className="space-y-2">
-                <Label>Cantidad (FLOW)</Label>
+                <Label>{t("customers.amountLabel")}</Label>
                 <Input
                   type="number"
                   step="0.0001"
@@ -296,9 +298,9 @@ export default function CustomersPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSendDialogOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setSendDialogOpen(false)}>{t("common.cancel")}</Button>
             <Button onClick={handleSend} disabled={sending || !sendAmount} className="bg-blue-600 hover:bg-blue-700">
-              {sending ? "Enviando..." : "Confirmar Envío"}
+              {sending ? t("customers.sending") : t("customers.confirmSend")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -12,8 +12,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useLanguage } from "@/components/language-provider"
 
 export default function SettingsPage() {
+  const { t } = useLanguage()
   const { data: session } = useSession()
   const [theme, setTheme] = useState("light")
   const [language, setLanguage] = useState("es")
@@ -42,53 +44,53 @@ export default function SettingsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Configuración</h1>
-          <p className="text-gray-500 mt-1">Personaliza tu experiencia en SMS2Flow</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("settings.title")}</h1>
+          <p className="text-gray-500 mt-1">{t("settings.subtitle")}</p>
         </div>
         <Button size="sm" onClick={handleSave} disabled={saving} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
           <Save className="h-4 w-4 mr-2" />
-          {saving ? "Guardando..." : "Guardar Cambios"}
+          {saving ? t("common.saving") : t("common.save")}
         </Button>
       </div>
 
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
-          <TabsTrigger value="preferences">Preferencias</TabsTrigger>
+          <TabsTrigger value="general">{t("settings.tabs.general")}</TabsTrigger>
+          <TabsTrigger value="notifications">{t("settings.tabs.notifications")}</TabsTrigger>
+          <TabsTrigger value="preferences">{t("settings.tabs.preferences")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-6 pt-4">
           <Card className="border-0 shadow-md">
             <CardHeader>
-              <CardTitle>Configuración General</CardTitle>
-              <CardDescription>Administra la configuración general de tu cuenta</CardDescription>
+              <CardTitle>{t("settings.general.title")}</CardTitle>
+              <CardDescription>{t("settings.general.desc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label>Tema</Label>
+                <Label>{t("settings.general.theme")}</Label>
                 <RadioGroup value={theme} onValueChange={setTheme} className="flex gap-6">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="light" id="light" />
                     <Label htmlFor="light" className="flex items-center gap-2 cursor-pointer">
-                      <Sun className="h-4 w-4" /> Claro
+                      <Sun className="h-4 w-4" /> {t("settings.general.themeOptions.light")}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="dark" id="dark" />
                     <Label htmlFor="dark" className="flex items-center gap-2 cursor-pointer">
-                      <Moon className="h-4 w-4" /> Oscuro
+                      <Moon className="h-4 w-4" /> {t("settings.general.themeOptions.dark")}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="system" id="system" />
-                    <Label htmlFor="system" className="cursor-pointer">Sistema</Label>
+                    <Label htmlFor="system" className="cursor-pointer">{t("settings.general.themeOptions.system")}</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <div className="space-y-2">
-                <Label>Idioma</Label>
+                <Label>{t("settings.general.language")}</Label>
                 <Select value={language} onValueChange={setLanguage}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -103,31 +105,31 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Red Blockchain Predeterminada</Label>
+                <Label>{t("settings.general.blockchain")}</Label>
                 <Select value={settings.defaultNetwork} onValueChange={(v) => setSettings({ ...settings, defaultNetwork: v })}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="flow">Flow Blockchain (Principal)</SelectItem>
-                    <SelectItem value="flow-testnet">Flow Testnet</SelectItem>
+                    <SelectItem value="flow">{t("settings.general.blockchainOptions.mainnet")}</SelectItem>
+                    <SelectItem value="flow-testnet">{t("settings.general.blockchainOptions.testnet")}</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-500 mt-1">
-                  Flow es la blockchain nativa de SMS2Flow para transacciones rápidas y económicas.
+                  {t("settings.general.blockchainDesc")}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label>Moneda para Mostrar</Label>
+                <Label>{t("settings.general.currency")}</Label>
                 <Select value={settings.defaultCurrency} onValueChange={(v) => setSettings({ ...settings, defaultCurrency: v })}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="usd">USD - Dólar Estadounidense</SelectItem>
-                    <SelectItem value="eur">EUR - Euro</SelectItem>
-                    <SelectItem value="flow">FLOW - Flow Token</SelectItem>
+                    <SelectItem value="usd">{t("settings.general.currencyOptions.usd")}</SelectItem>
+                    <SelectItem value="eur">{t("settings.general.currencyOptions.eur")}</SelectItem>
+                    <SelectItem value="flow">{t("settings.general.currencyOptions.flow")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -136,13 +138,13 @@ export default function SettingsPage() {
 
           <Card className="border-0 shadow-md">
             <CardHeader>
-              <CardTitle>Enlaces Rápidos</CardTitle>
+              <CardTitle>{t("settings.quickLinks.title")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {[
-                { href: "/dashboard/profile", icon: <User className="h-5 w-5 text-gray-500" />, title: "Perfil", desc: "Edita tu información personal" },
-                { href: "/dashboard/wallet", icon: <CreditCard className="h-5 w-5 text-gray-500" />, title: "Billetera", desc: "Gestiona tus activos Flow" },
-                { href: "/dashboard/sms-payments", icon: <MessageSquare className="h-5 w-5 text-gray-500" />, title: "Pagos SMS", desc: "Configura pagos por mensaje de texto" },
+                { href: "/dashboard/profile", icon: <User className="h-5 w-5 text-gray-500" />, title: t("settings.quickLinks.profile"), desc: t("settings.quickLinks.profileDesc") },
+                { href: "/dashboard/wallet", icon: <CreditCard className="h-5 w-5 text-gray-500" />, title: t("settings.quickLinks.wallet"), desc: t("settings.quickLinks.walletDesc") },
+                { href: "/dashboard/sms-payments", icon: <MessageSquare className="h-5 w-5 text-gray-500" />, title: t("settings.quickLinks.smsPayments"), desc: t("settings.quickLinks.smsPaymentsDesc") },
               ].map((link) => (
                 <Link key={link.href} href={link.href} className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors">
                   <div className="flex items-center">
@@ -162,40 +164,40 @@ export default function SettingsPage() {
         <TabsContent value="notifications" className="space-y-6 pt-4">
           <Card className="border-0 shadow-md">
             <CardHeader>
-              <CardTitle>Notificaciones</CardTitle>
-              <CardDescription>Controla qué notificaciones recibes</CardDescription>
+              <CardTitle>{t("settings.notifications.title")}</CardTitle>
+              <CardDescription>{t("settings.notifications.desc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h3 className="font-medium">Correo Electrónico</h3>
+                <h3 className="font-medium">{t("settings.notifications.emailSection")}</h3>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base">Transacciones</Label>
-                    <p className="text-sm text-gray-500">Notificaciones cuando se realicen transacciones</p>
+                    <Label className="text-base">{t("settings.notifications.txNotif")}</Label>
+                    <p className="text-sm text-gray-500">{t("settings.notifications.txNotifDesc")}</p>
                   </div>
                   <Switch checked={settings.emailNotifications} onCheckedChange={() => handleToggle("emailNotifications")} />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base">Marketing</Label>
-                    <p className="text-sm text-gray-500">Noticias y actualizaciones de SMS2Flow</p>
+                    <Label className="text-base">{t("settings.notifications.marketing")}</Label>
+                    <p className="text-sm text-gray-500">{t("settings.notifications.marketingDesc")}</p>
                   </div>
                   <Switch checked={settings.marketingEmails} onCheckedChange={() => handleToggle("marketingEmails")} />
                 </div>
               </div>
               <div className="space-y-4">
-                <h3 className="font-medium">SMS</h3>
+                <h3 className="font-medium">{t("settings.notifications.smsSection")}</h3>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base">Transacciones SMS</Label>
-                    <p className="text-sm text-gray-500">Notificaciones SMS para transacciones</p>
+                    <Label className="text-base">{t("settings.notifications.smsTx")}</Label>
+                    <p className="text-sm text-gray-500">{t("settings.notifications.smsTxDesc")}</p>
                   </div>
                   <Switch checked={settings.smsNotifications} onCheckedChange={() => handleToggle("smsNotifications")} />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base">Alertas Promocionales</Label>
-                    <p className="text-sm text-gray-500">Ofertas especiales vía SMS</p>
+                    <Label className="text-base">{t("settings.notifications.smsPromo")}</Label>
+                    <p className="text-sm text-gray-500">{t("settings.notifications.smsPromoDesc")}</p>
                   </div>
                   <Switch checked={settings.promotionalAlerts} onCheckedChange={() => handleToggle("promotionalAlerts")} />
                 </div>
@@ -207,19 +209,19 @@ export default function SettingsPage() {
         <TabsContent value="preferences" className="space-y-6 pt-4">
           <Card className="border-0 shadow-md">
             <CardHeader>
-              <CardTitle>Preferencias Blockchain</CardTitle>
-              <CardDescription>Preferencias para transacciones en Flow</CardDescription>
+              <CardTitle>{t("settings.preferences.title")}</CardTitle>
+              <CardDescription>{t("settings.preferences.desc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label>Explorador de Bloques</Label>
+                <Label>{t("settings.preferences.explorer")}</Label>
                 <Select defaultValue="flowscan">
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="flowscan">Flowscan (Recomendado)</SelectItem>
-                    <SelectItem value="flowview">Flowview</SelectItem>
+                    <SelectItem value="flowscan">{t("settings.preferences.explorerOptions.flowscan")}</SelectItem>
+                    <SelectItem value="flowview">{t("settings.preferences.explorerOptions.flowview")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -227,11 +229,10 @@ export default function SettingsPage() {
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <div className="flex items-center mb-2">
                   <Globe className="h-5 w-5 text-blue-600 mr-2" />
-                  <span className="font-medium text-blue-800">Flow Blockchain</span>
+                  <span className="font-medium text-blue-800">{t("settings.preferences.flowInfo")}</span>
                 </div>
                 <p className="text-sm text-blue-700">
-                  SMS2Flow utiliza Flow blockchain para transacciones rápidas, seguras y con bajas comisiones.
-                  Tu moneda principal es FLOW.
+                  {t("settings.preferences.flowDesc")}
                 </p>
               </div>
             </CardContent>

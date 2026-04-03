@@ -19,8 +19,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
+import { useLanguage } from "@/components/language-provider"
 
 export default function ProfilePage() {
+  const { t } = useLanguage()
   const { data: session } = useSession()
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -95,8 +97,8 @@ export default function ProfilePage() {
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Mi Perfil</h1>
-          <p className="mt-1 text-gray-500">Gestiona tu información personal</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("profile.title")}</h1>
+          <p className="mt-1 text-gray-500">{t("profile.subtitle")}</p>
         </div>
         <Button
           size="sm"
@@ -105,8 +107,8 @@ export default function ProfilePage() {
           className={isEditing ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white" : ""}
           variant={isEditing ? "default" : "outline"}
         >
-          {isEditing ? (saving ? "Guardando..." : "Guardar Cambios") : (
-            <><Edit className="mr-2 h-4 w-4" /> Editar Perfil</>
+          {isEditing ? (saving ? t("common.saving") : t("common.save")) : (
+            <><Edit className="mr-2 h-4 w-4" /> {t("profile.editProfile")}</>
           )}
         </Button>
       </div>
@@ -129,12 +131,12 @@ export default function ProfilePage() {
                 {isEditing ? (
                   <Input name="name" value={profileData.name} onChange={handleChange} className="text-center font-bold text-xl max-w-[250px]" />
                 ) : (
-                  <h2 className="text-xl font-bold text-slate-900">{profileData.name || "Sin nombre"}</h2>
+                  <h2 className="text-xl font-bold text-slate-900">{profileData.name || t("profile.noName")}</h2>
                 )}
                 <p className="text-sm text-gray-500 mt-1">{profileData.email}</p>
                 <span className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
                   <BadgeCheck className="h-3 w-3 mr-1" />
-                  {session?.user?.role === "ADMIN" ? "Administrador" : "Usuario Verificado"}
+                  {session?.user?.role === "ADMIN" ? t("common.roles.admin") : t("common.roles.user")}
                 </span>
               </div>
             </CardHeader>
@@ -153,14 +155,14 @@ export default function ProfilePage() {
                   {isEditing ? (
                     <Input name="phone" value={profileData.phone} onChange={handleChange} className="h-8 text-sm" placeholder="+1234567890" />
                   ) : (
-                    <span className="text-sm">{profileData.phone || "No configurado"}</span>
+                    <span className="text-sm">{profileData.phone || t("profile.phoneDefault")}</span>
                   )}
                 </div>
               </div>
 
               <div className="mt-6">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium">Perfil completado</span>
+                  <span className="text-sm font-medium">{t("profile.profileCompleted")}</span>
                   <span className="text-sm font-semibold text-slate-700">{completionPercent}%</span>
                 </div>
                 <Progress value={completionPercent} className="h-2" />
@@ -173,19 +175,19 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Wallet className="h-5 w-5 mr-2 text-blue-600" />
-                Mis Billeteras Flow
+                {t("profile.myWallets")}
               </CardTitle>
-              <CardDescription>Direcciones asociadas a tu cuenta</CardDescription>
+              <CardDescription>{t("profile.walletsDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               {wallets.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-4">No tienes billeteras aún</p>
+                <p className="text-sm text-gray-500 text-center py-4">{t("profile.noWallets")}</p>
               ) : (
                 <div className="space-y-3">
                   {wallets.map((w) => (
                     <div key={w.id} className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3">
                       <div>
-                        <p className="text-sm font-medium">{w.label || "Billetera Flow"}</p>
+                        <p className="text-sm font-medium">{w.label || t("profile.walletFallback")}</p>
                         <p className="text-xs text-gray-500 font-mono">{w.address?.slice(0, 8)}...{w.address?.slice(-6)}</p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -206,26 +208,26 @@ export default function ProfilePage() {
           {/* Stats */}
           <Card className="border border-slate-200 bg-white shadow-sm">
             <CardHeader>
-              <CardTitle>Estadísticas</CardTitle>
-              <CardDescription>Resumen de tu actividad en la plataforma</CardDescription>
+              <CardTitle>{t("profile.stats")}</CardTitle>
+              <CardDescription>{t("profile.statsDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
                 <div className="flex flex-col items-center rounded-lg border border-slate-200 bg-white p-4">
                   <div className="text-2xl font-bold text-blue-700">{stats.transactions}</div>
-                  <p className="text-sm text-gray-600">Transacciones</p>
+                  <p className="text-sm text-gray-600">{t("profile.statsTx")}</p>
                 </div>
                 <div className="flex flex-col items-center rounded-lg border border-slate-200 bg-white p-4">
                   <div className="text-2xl font-bold text-indigo-700">{stats.totalValue} FLOW</div>
-                  <p className="text-sm text-gray-600">Balance Total</p>
+                  <p className="text-sm text-gray-600">{t("profile.statsBalance")}</p>
                 </div>
                 <div className="flex flex-col items-center rounded-lg border border-slate-200 bg-white p-4">
                   <div className="text-2xl font-bold text-purple-700">{stats.wallets}</div>
-                  <p className="text-sm text-gray-600">Billeteras</p>
+                  <p className="text-sm text-gray-600">{t("profile.statsWallets")}</p>
                 </div>
                 <div className="flex flex-col items-center rounded-lg border border-slate-200 bg-white p-4">
                   <div className="text-2xl font-bold text-cyan-700">{stats.customers}</div>
-                  <p className="text-sm text-gray-600">Clientes</p>
+                  <p className="text-sm text-gray-600">{t("profile.statsCustomers")}</p>
                 </div>
               </div>
             </CardContent>
@@ -234,8 +236,8 @@ export default function ProfilePage() {
           {/* Verification */}
           <Card className="border border-slate-200 bg-white shadow-sm">
             <CardHeader>
-              <CardTitle>Verificación de Identidad</CardTitle>
-              <CardDescription>Estado de verificación de tu cuenta</CardDescription>
+              <CardTitle>{t("profile.verification")}</CardTitle>
+              <CardDescription>{t("profile.verificationDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -245,8 +247,8 @@ export default function ProfilePage() {
                       <User className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Cuenta Activa</h3>
-                      <p className="text-xs text-green-600">Registrado</p>
+                      <h3 className="font-medium">{t("profile.accountActive")}</h3>
+                      <p className="text-xs text-green-600">{t("profile.registered")}</p>
                     </div>
                   </div>
                   <BadgeCheck className="h-5 w-5 text-green-600" />
@@ -258,9 +260,9 @@ export default function ProfilePage() {
                       <Mail className={`h-5 w-5 ${profileData.email ? "text-green-600" : "text-amber-600"}`} />
                     </div>
                     <div>
-                      <h3 className="font-medium">Correo Electrónico</h3>
+                      <h3 className="font-medium">{t("profile.emailLabel")}</h3>
                       <p className={`text-xs ${profileData.email ? "text-green-600" : "text-amber-600"}`}>
-                        {profileData.email ? "Verificado" : "Pendiente"}
+                        {profileData.email ? t("common.verified") : t("common.pendingVerification")}
                       </p>
                     </div>
                   </div>
@@ -273,9 +275,9 @@ export default function ProfilePage() {
                       <Shield className={`h-5 w-5 ${wallets.length > 0 ? "text-green-600" : "text-amber-600"}`} />
                     </div>
                     <div>
-                      <h3 className="font-medium">Billetera Flow</h3>
+                      <h3 className="font-medium">{t("profile.walletLabel")}</h3>
                       <p className={`text-xs ${wallets.length > 0 ? "text-green-600" : "text-amber-600"}`}>
-                        {wallets.length > 0 ? "Configurada" : "Sin configurar"}
+                        {wallets.length > 0 ? t("common.configured") : t("common.notConfigured")}
                       </p>
                     </div>
                   </div>

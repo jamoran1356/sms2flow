@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useLanguage } from "@/components/language-provider"
 
 const QUICK_COMMANDS = [
   { label: "HELP", cmd: "HELP" },
@@ -20,9 +21,9 @@ const QUICK_COMMANDS = [
   { label: "P2PBUY", cmd: "P2PBUY 5 4.20 USD" },
 ]
 
-function PhoneStatusBar() {
+function PhoneStatusBar({ locale }) {
   const now = new Date()
-  const time = now.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })
+  const time = now.toLocaleTimeString(locale === "es" ? "es-MX" : "en-US", { hour: "2-digit", minute: "2-digit" })
   return (
     <div className="flex items-center justify-between px-5 py-1.5 text-white text-[11px] font-medium">
       <span>{time}</span>
@@ -57,12 +58,13 @@ function MessageBubble({ message }) {
 
 export default function SmsSimulatorPage() {
   const { data: session } = useSession()
+  const { t, locale } = useLanguage()
   const [messages, setMessages] = useState([
     {
       id: "welcome",
       type: "received",
-      text: "Bienvenido al simulador SMS2Flow!\nEscribe un comando SMS o usa los botones rapidos.\n\nEnvia HELP para ver todos los comandos.",
-      time: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
+      text: t("simulator.welcomeMsg"),
+      time: new Date().toLocaleTimeString(locale === "es" ? "es-MX" : "en-US", { hour: "2-digit", minute: "2-digit" }),
     },
   ])
   const [input, setInput] = useState("")
@@ -77,7 +79,7 @@ export default function SmsSimulatorPage() {
     }
   }, [messages])
 
-  const getTime = () => new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })
+  const getTime = () => new Date().toLocaleTimeString(locale === "es" ? "es-MX" : "en-US", { hour: "2-digit", minute: "2-digit" })
 
   const sendMessage = async (text) => {
     if (!text.trim() || sending) return
@@ -104,7 +106,7 @@ export default function SmsSimulatorPage() {
       const replyMsg = {
         id: `received-${Date.now()}`,
         type: "received",
-        text: data.reply || data.error || "Sin respuesta",
+        text: data.reply || data.error || t("simulator.noResponse"),
         time: getTime(),
         command: data.command,
         ok: data.ok,
@@ -116,7 +118,7 @@ export default function SmsSimulatorPage() {
         {
           id: `error-${Date.now()}`,
           type: "received",
-          text: "Error de conexion. Intenta de nuevo.",
+          text: t("simulator.connectionError"),
           time: getTime(),
           ok: false,
         },
@@ -141,7 +143,7 @@ export default function SmsSimulatorPage() {
       {
         id: "welcome-new",
         type: "received",
-        text: "Chat reiniciado. Envia HELP para ver los comandos.",
+        text: t("simulator.chatReset"),
         time: getTime(),
       },
     ])
@@ -151,8 +153,8 @@ export default function SmsSimulatorPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Simulador SMS</h1>
-          <p className="text-gray-500">Prueba los comandos SMS como si enviaras mensajes de texto</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t("simulator.title")}</h1>
+          <p className="text-gray-500">{t("simulator.subtitle")}</p>
         </div>
       </div>
 
@@ -169,15 +171,15 @@ export default function SmsSimulatorPage() {
               <div className="w-full h-full bg-gray-100 rounded-[2.3rem] overflow-hidden flex flex-col">
                 {/* Status Bar */}
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-700 shrink-0">
-                  <PhoneStatusBar />
+                  <PhoneStatusBar locale={locale} />
                   {/* SMS Header */}
                   <div className="flex items-center gap-2 px-4 pb-2.5 pt-1">
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                       <Smartphone className="h-4 w-4 text-white" />
                     </div>
                     <div>
-                      <p className="text-white text-sm font-semibold">SMS2Flow</p>
-                      <p className="text-blue-200 text-[10px]">Servicio de pagos</p>
+                      <p className="text-white text-sm font-semibold">{t("simulator.serviceName")}</p>
+                      <p className="text-blue-200 text-[10px]">{t("simulator.serviceTag")}</p>
                     </div>
                   </div>
                 </div>
@@ -210,7 +212,7 @@ export default function SmsSimulatorPage() {
                       ref={inputRef}
                       value={input}
                       onChange={(e) => setInput(e.target.value.toUpperCase())}
-                      placeholder="Escribe un comando SMS..."
+                      placeholder={t("simulator.inputPlaceholder")}
                       className="flex-1 rounded-full text-sm h-9 bg-gray-100 border-0 focus-visible:ring-1 focus-visible:ring-blue-400 px-4"
                       disabled={sending}
                     />
@@ -236,12 +238,12 @@ export default function SmsSimulatorPage() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Phone className="h-4 w-4" />
-                Configuracion del Simulador
+                {t("simulator.configTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <label className="text-sm text-gray-500 mb-1 block">Numero de telefono (remitente)</label>
+                <label className="text-sm text-gray-500 mb-1 block">{t("simulator.phoneLabel")}</label>
                 <Input
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
@@ -249,12 +251,12 @@ export default function SmsSimulatorPage() {
                   className="font-mono"
                 />
                 <p className="text-xs text-gray-400 mt-1">
-                  Este es el numero que envia los SMS. Usa un numero registrado para probar comandos que requieren cuenta.
+                  {t("simulator.phoneHelp")}
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={clearChat} className="gap-2">
                 <RotateCcw className="h-3.5 w-3.5" />
-                Reiniciar chat
+                {t("simulator.resetChat")}
               </Button>
             </CardContent>
           </Card>
@@ -264,7 +266,7 @@ export default function SmsSimulatorPage() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <HelpCircle className="h-4 w-4" />
-                Comandos Rapidos
+                {t("simulator.quickCommands")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -288,45 +290,45 @@ export default function SmsSimulatorPage() {
           {/* Commands Reference */}
           <Card className="bg-white border-0 shadow-md">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Referencia de Comandos</CardTitle>
+              <CardTitle className="text-base">{t("simulator.reference")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 text-sm">
                 <div className="grid grid-cols-[120px_1fr] gap-1">
                   <Badge variant="secondary" className="font-mono text-xs justify-center">HELP</Badge>
-                  <span className="text-gray-600">Ver todos los comandos disponibles</span>
+                  <span className="text-gray-600">{t("simulator.cmdHelp")}</span>
                 </div>
                 <div className="grid grid-cols-[120px_1fr] gap-1">
                   <Badge variant="secondary" className="font-mono text-xs justify-center">REGISTER</Badge>
-                  <span className="text-gray-600">REGISTER &lt;nombre&gt; — Crear cuenta nueva</span>
+                  <span className="text-gray-600">{t("simulator.cmdRegister")}</span>
                 </div>
                 <div className="grid grid-cols-[120px_1fr] gap-1">
                   <Badge variant="secondary" className="font-mono text-xs justify-center">BALANCE</Badge>
-                  <span className="text-gray-600">Consultar saldo de billeteras</span>
+                  <span className="text-gray-600">{t("simulator.cmdBalance")}</span>
                 </div>
                 <div className="grid grid-cols-[120px_1fr] gap-1">
                   <Badge variant="secondary" className="font-mono text-xs justify-center">SEND</Badge>
-                  <span className="text-gray-600">SEND &lt;monto&gt; TO &lt;tel&gt; KEY &lt;clave&gt;</span>
+                  <span className="text-gray-600">{t("simulator.cmdSend")}</span>
                 </div>
                 <div className="grid grid-cols-[120px_1fr] gap-1">
                   <Badge variant="secondary" className="font-mono text-xs justify-center">CONFIRM</Badge>
-                  <span className="text-gray-600">CONFIRM &lt;id&gt; &lt;clave&gt; — Confirmar envio</span>
+                  <span className="text-gray-600">{t("simulator.cmdConfirm")}</span>
                 </div>
                 <div className="grid grid-cols-[120px_1fr] gap-1">
                   <Badge variant="secondary" className="font-mono text-xs justify-center">SELL</Badge>
-                  <span className="text-gray-600">SELL &lt;monto&gt; &lt;precio&gt; &lt;moneda&gt;</span>
+                  <span className="text-gray-600">{t("simulator.cmdSell")}</span>
                 </div>
                 <div className="grid grid-cols-[120px_1fr] gap-1">
                   <Badge variant="secondary" className="font-mono text-xs justify-center">P2PBUY</Badge>
-                  <span className="text-gray-600">P2PBUY &lt;monto&gt; &lt;precio&gt; &lt;moneda&gt;</span>
+                  <span className="text-gray-600">{t("simulator.cmdP2pbuy")}</span>
                 </div>
                 <div className="grid grid-cols-[120px_1fr] gap-1">
                   <Badge variant="secondary" className="font-mono text-xs justify-center">MARKET</Badge>
-                  <span className="text-gray-600">MARKET [BUY|SELL] — Ver anuncios P2P</span>
+                  <span className="text-gray-600">{t("simulator.cmdMarket")}</span>
                 </div>
                 <div className="grid grid-cols-[120px_1fr] gap-1">
                   <Badge variant="secondary" className="font-mono text-xs justify-center">HISTORY</Badge>
-                  <span className="text-gray-600">HISTORY [n] — Ultimas n transacciones</span>
+                  <span className="text-gray-600">{t("simulator.cmdHistory")}</span>
                 </div>
               </div>
             </CardContent>

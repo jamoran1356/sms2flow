@@ -20,8 +20,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useLanguage } from "@/components/language-provider"
 
 export default function TransactionsPage() {
+  const { t, locale } = useLanguage()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [transactions, setTransactions] = useState([])
@@ -81,19 +83,19 @@ export default function TransactionsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Transacciones</h1>
-          <p className="text-gray-500 mt-1">Historial de transacciones en Flow Network</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("txPage.title")}</h1>
+          <p className="text-gray-500 mt-1">{t("txPage.subtitle")}</p>
         </div>
         <Button variant="outline" size="sm">
           <Download className="mr-2 h-4 w-4" />
-          Exportar
+          {t("common.export")}
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="border-0 shadow-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Recibido</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">{t("txPage.totalReceived")}</CardTitle>
             <div className="p-2 rounded-lg bg-green-50"><ArrowDown className="h-4 w-4 text-green-600" /></div>
           </CardHeader>
           <CardContent>
@@ -102,7 +104,7 @@ export default function TransactionsPage() {
         </Card>
         <Card className="border-0 shadow-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Enviado</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">{t("txPage.totalSent")}</CardTitle>
             <div className="p-2 rounded-lg bg-orange-50"><ArrowUp className="h-4 w-4 text-orange-600" /></div>
           </CardHeader>
           <CardContent>
@@ -111,7 +113,7 @@ export default function TransactionsPage() {
         </Card>
         <Card className="border-0 shadow-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Balance Neto</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">{t("txPage.netBalance")}</CardTitle>
             <div className="p-2 rounded-lg bg-blue-50"><ArrowUpDown className="h-4 w-4 text-blue-600" /></div>
           </CardHeader>
           <CardContent>
@@ -123,15 +125,15 @@ export default function TransactionsPage() {
       <Tabs defaultValue="all" className="space-y-4">
         <div className="flex items-center justify-between">
           <TabsList className="bg-white border shadow-sm">
-            <TabsTrigger value="all" onClick={() => setFilterType("all")}>Todas</TabsTrigger>
-            <TabsTrigger value="DEPOSIT" onClick={() => setFilterType("DEPOSIT")}>Depósitos</TabsTrigger>
-            <TabsTrigger value="WITHDRAWAL" onClick={() => setFilterType("WITHDRAWAL")}>Retiros</TabsTrigger>
-            <TabsTrigger value="SMS_PAYMENT" onClick={() => setFilterType("SMS_PAYMENT")}>SMS</TabsTrigger>
+            <TabsTrigger value="all" onClick={() => setFilterType("all")}>{t("txPage.all")}</TabsTrigger>
+            <TabsTrigger value="DEPOSIT" onClick={() => setFilterType("DEPOSIT")}>{t("txPage.deposits")}</TabsTrigger>
+            <TabsTrigger value="WITHDRAWAL" onClick={() => setFilterType("WITHDRAWAL")}>{t("txPage.withdrawals")}</TabsTrigger>
+            <TabsTrigger value="SMS_PAYMENT" onClick={() => setFilterType("SMS_PAYMENT")}>{t("txPage.sms")}</TabsTrigger>
           </TabsList>
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Buscar transacciones..."
+              placeholder={t("txPage.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-8 w-[280px]"
@@ -142,20 +144,20 @@ export default function TransactionsPage() {
         <TabsContent value="all" className="space-y-4">
           <Card className="border-0 shadow-md">
             <CardHeader>
-              <CardTitle>Historial de Transacciones</CardTitle>
-              <CardDescription>{filteredTransactions.length} transacción(es) encontrada(s)</CardDescription>
+              <CardTitle>{t("txPage.historyTitle")}</CardTitle>
+              <CardDescription>{t("txPage.foundCount", { n: filteredTransactions.length })}</CardDescription>
             </CardHeader>
             <CardContent>
               {filteredTransactions.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Cantidad</TableHead>
-                      <TableHead>Descripción</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead>Acciones</TableHead>
+                      <TableHead>{t("txPage.date")}</TableHead>
+                      <TableHead>{t("txPage.type")}</TableHead>
+                      <TableHead>{t("txPage.amountCol")}</TableHead>
+                      <TableHead>{t("txPage.description")}</TableHead>
+                      <TableHead>{t("txPage.statusCol")}</TableHead>
+                      <TableHead>{t("txPage.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -163,8 +165,8 @@ export default function TransactionsPage() {
                       <TableRow key={tx.id}>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="text-sm font-medium">{new Date(tx.createdAt).toLocaleDateString("es-ES")}</span>
-                            <span className="text-xs text-gray-500">{new Date(tx.createdAt).toLocaleTimeString("es-ES")}</span>
+                            <span className="text-sm font-medium">{new Date(tx.createdAt).toLocaleDateString(locale === "es" ? "es-ES" : "en-US")}</span>
+                            <span className="text-xs text-gray-500">{new Date(tx.createdAt).toLocaleTimeString(locale === "es" ? "es-ES" : "en-US")}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -175,7 +177,7 @@ export default function TransactionsPage() {
                               <ArrowUp className="h-4 w-4 text-orange-600" />
                             )}
                             <Badge variant="outline" className="text-xs">
-                              {tx.type === "DEPOSIT" ? "Depósito" : tx.type === "WITHDRAWAL" ? "Retiro" : tx.type === "SMS_PAYMENT" ? "SMS" : tx.type === "TRANSFER" ? "Transferencia" : tx.type}
+                              {tx.type === "DEPOSIT" ? t("common.txType.DEPOSIT") : tx.type === "WITHDRAWAL" ? t("common.txType.WITHDRAWAL") : tx.type === "SMS_PAYMENT" ? t("common.txType.SMS_PAYMENT") : tx.type === "TRANSFER" ? t("common.txType.TRANSFER") : tx.type}
                             </Badge>
                           </div>
                         </TableCell>
@@ -189,7 +191,7 @@ export default function TransactionsPage() {
                         </TableCell>
                         <TableCell>
                           <Badge className={`text-xs ${tx.status === "COMPLETED" ? "bg-green-100 text-green-700" : tx.status === "PENDING" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>
-                            {tx.status === "COMPLETED" ? "Completada" : tx.status === "PENDING" ? "Pendiente" : "Fallida"}
+                            {tx.status === "COMPLETED" ? t("common.status.completed") : tx.status === "PENDING" ? t("common.status.pending") : t("common.status.failed")}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -204,11 +206,11 @@ export default function TransactionsPage() {
                                 <>
                                   <DropdownMenuItem onClick={() => copyToClipboard(tx.txHash)}>
                                     <Copy className="mr-2 h-4 w-4" />
-                                    Copiar Hash
+                                    {t("txPage.copyHash")}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => window.open(`https://flowscan.org/transaction/${tx.txHash}`, "_blank")}>
                                     <ExternalLink className="mr-2 h-4 w-4" />
-                                    Ver en Explorer
+                                    {t("txPage.viewExplorer")}
                                   </DropdownMenuItem>
                                 </>
                               )}
@@ -222,8 +224,8 @@ export default function TransactionsPage() {
               ) : (
                 <div className="text-center py-12 text-gray-500">
                   <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                  <p>No hay transacciones</p>
-                  <p className="text-sm mt-1">Tus transacciones aparecerán aquí</p>
+                  <p>{t("txPage.noTransactions")}</p>
+                  <p className="text-sm mt-1">{t("txPage.willAppear")}</p>
                 </div>
               )}
             </CardContent>

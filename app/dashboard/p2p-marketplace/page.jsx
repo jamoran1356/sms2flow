@@ -39,31 +39,26 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useLanguage } from "@/components/language-provider"
 
-function formatNumber(value) {
+function formatNumber(value, locale) {
   const num = parseFloat(value || 0)
-  return new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(num)
+  return new Intl.NumberFormat(locale === "es" ? "es-ES" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(num)
 }
 
-function timeAgo(dateStr) {
+function timeAgo(dateStr, t) {
   const diff = Date.now() - new Date(dateStr).getTime()
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return "ahora"
-  if (mins < 60) return `hace ${mins}m`
+  if (mins < 1) return t("common.timeAgo.now")
+  if (mins < 60) return t("common.timeAgo.minsAgo", { n: mins })
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `hace ${hrs}h`
+  if (hrs < 24) return t("common.timeAgo.hoursAgo", { n: hrs })
   const days = Math.floor(hrs / 24)
-  return `hace ${days}d`
-}
-
-const PAYMENT_METHODS = {
-  bank_transfer: "Transferencia bancaria",
-  mobile_payment: "Pago móvil",
-  cash: "Efectivo",
-  other: "Otro",
+  return t("common.timeAgo.daysAgo", { n: days })
 }
 
 export default function P2PMarketplacePage() {
+  const { t, locale } = useLanguage()
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState("ALL") // ALL, BUY, SELL
@@ -166,20 +161,20 @@ export default function P2PMarketplacePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Marketplace P2P</h1>
-          <p className="text-gray-500 mt-1">Compra y vende FLOW directamente con otros usuarios</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("p2p.title")}</h1>
+          <p className="text-gray-500 mt-1">{t("p2p.subtitle")}</p>
         </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white">
               <Plus className="h-4 w-4 mr-2" />
-              Crear anuncio
+              {t("p2p.createAd")}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>Crear anuncio P2P</DialogTitle>
-              <DialogDescription>Publica una oferta de compra o venta de FLOW</DialogDescription>
+              <DialogTitle>{t("p2p.createTitle")}</DialogTitle>
+              <DialogDescription>{t("p2p.createDesc")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-3">
@@ -190,7 +185,7 @@ export default function P2PMarketplacePage() {
                   className={form.type === "SELL" ? "bg-red-500 hover:bg-red-600" : ""}
                 >
                   <TrendingDown className="h-4 w-4 mr-2" />
-                  Vender FLOW
+                  {t("p2p.sellFlow")}
                 </Button>
                 <Button
                   type="button"
@@ -199,13 +194,13 @@ export default function P2PMarketplacePage() {
                   className={form.type === "BUY" ? "bg-green-500 hover:bg-green-600" : ""}
                 >
                   <TrendingUp className="h-4 w-4 mr-2" />
-                  Comprar FLOW
+                  {t("p2p.buyFlow")}
                 </Button>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>Cantidad (FLOW)</Label>
+                  <Label>{t("p2p.amountLabel")}</Label>
                   <Input
                     type="number"
                     step="0.01"
@@ -215,7 +210,7 @@ export default function P2PMarketplacePage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Precio por FLOW</Label>
+                  <Label>{t("p2p.priceLabel")}</Label>
                   <div className="flex gap-2">
                     <Input
                       type="number"
@@ -243,21 +238,21 @@ export default function P2PMarketplacePage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>Mínimo (FLOW)</Label>
+                  <Label>{t("p2p.minLabel")}</Label>
                   <Input
                     type="number"
                     step="0.01"
-                    placeholder="Opcional"
+                    placeholder={t("p2p.optional")}
                     value={form.minAmount}
                     onChange={(e) => setForm((f) => ({ ...f, minAmount: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Máximo (FLOW)</Label>
+                  <Label>{t("p2p.maxLabel")}</Label>
                   <Input
                     type="number"
                     step="0.01"
-                    placeholder="Opcional"
+                    placeholder={t("p2p.optional")}
                     value={form.maxAmount}
                     onChange={(e) => setForm((f) => ({ ...f, maxAmount: e.target.value }))}
                   />
@@ -265,24 +260,24 @@ export default function P2PMarketplacePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Método de pago</Label>
+                <Label>{t("p2p.paymentMethodLabel")}</Label>
                 <Select value={form.paymentMethod} onValueChange={(v) => setForm((f) => ({ ...f, paymentMethod: v }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="bank_transfer">Transferencia bancaria</SelectItem>
-                    <SelectItem value="mobile_payment">Pago móvil</SelectItem>
-                    <SelectItem value="cash">Efectivo</SelectItem>
-                    <SelectItem value="other">Otro</SelectItem>
+                    <SelectItem value="bank_transfer">{t("p2p.paymentMethods.bank_transfer")}</SelectItem>
+                    <SelectItem value="mobile_payment">{t("p2p.paymentMethods.mobile_payment")}</SelectItem>
+                    <SelectItem value="cash">{t("p2p.paymentMethods.cash")}</SelectItem>
+                    <SelectItem value="other">{t("p2p.paymentMethods.other")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label>Descripción (opcional)</Label>
+                <Label>{t("p2p.descriptionLabel")}</Label>
                 <Textarea
-                  placeholder="Condiciones, horarios, bancos aceptados..."
+                  placeholder={t("p2p.descriptionPlaceholder")}
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   rows={3}
@@ -291,22 +286,22 @@ export default function P2PMarketplacePage() {
 
               {form.amount && form.price && (
                 <div className="rounded-lg bg-gray-50 p-3 text-sm">
-                  <span className="text-gray-500">Total estimado: </span>
+                  <span className="text-gray-500">{t("p2p.estimatedTotal")}</span>
                   <span className="font-semibold">
-                    {formatNumber(Number(form.amount) * Number(form.price))} {form.currency}
+                    {formatNumber(Number(form.amount) * Number(form.price), locale)} {form.currency}
                   </span>
-                  <span className="text-gray-400"> por {formatNumber(form.amount)} FLOW</span>
+                  <span className="text-gray-400"> por {formatNumber(form.amount, locale)} FLOW</span>
                 </div>
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
+              <Button variant="outline" onClick={() => setCreateOpen(false)}>{t("common.cancel")}</Button>
               <Button
                 onClick={handleCreate}
                 disabled={creating || !form.amount || !form.price}
                 className="bg-emerald-600 hover:bg-emerald-700"
               >
-                {creating ? "Publicando..." : "Publicar anuncio"}
+                {creating ? t("p2p.publishing") : t("p2p.publishButton")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -318,19 +313,19 @@ export default function P2PMarketplacePage() {
         <Card className="border-0 shadow-sm bg-white">
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold text-gray-900">{stats.totalListings}</p>
-            <p className="text-xs text-gray-500">Anuncios activos</p>
+            <p className="text-xs text-gray-500">{t("p2p.statsActive")}</p>
           </CardContent>
         </Card>
         <Card className="border-0 shadow-sm bg-white">
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold text-green-600">{stats.buyOrders}</p>
-            <p className="text-xs text-gray-500">Compran FLOW</p>
+            <p className="text-xs text-gray-500">{t("p2p.statsBuy")}</p>
           </CardContent>
         </Card>
         <Card className="border-0 shadow-sm bg-white">
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold text-red-500">{stats.sellOrders}</p>
-            <p className="text-xs text-gray-500">Venden FLOW</p>
+            <p className="text-xs text-gray-500">{t("p2p.statsSell")}</p>
           </CardContent>
         </Card>
       </div>
@@ -340,7 +335,7 @@ export default function P2PMarketplacePage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Buscar por usuario, moneda..."
+            placeholder={t("p2p.searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
@@ -355,7 +350,7 @@ export default function P2PMarketplacePage() {
               onClick={() => setFilter(f)}
               className={filter === f ? (f === "BUY" ? "bg-green-500 hover:bg-green-600" : f === "SELL" ? "bg-red-500 hover:bg-red-600" : "bg-blue-600") : ""}
             >
-              {f === "ALL" ? "Todos" : f === "BUY" ? "Compra" : "Venta"}
+              {f === "ALL" ? t("p2p.filterAll") : f === "BUY" ? t("p2p.filterBuy") : t("p2p.filterSell")}
             </Button>
           ))}
           <Button
@@ -363,7 +358,7 @@ export default function P2PMarketplacePage() {
             size="sm"
             onClick={() => setShowMyListings(!showMyListings)}
           >
-            Mis anuncios
+            {t("p2p.myAds")}
           </Button>
         </div>
       </div>
@@ -387,11 +382,11 @@ export default function P2PMarketplacePage() {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <Badge className={isBuy ? "bg-green-500" : "bg-red-500"}>
-                      {isBuy ? "COMPRA" : "VENTA"}
+                      {isBuy ? t("p2p.buyBadge") : t("p2p.sellBadge")}
                     </Badge>
                     <span className="text-xs text-gray-400 flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      {timeAgo(listing.createdAt)}
+                      {timeAgo(listing.createdAt, t)}
                     </span>
                   </div>
                 </CardHeader>
@@ -402,38 +397,38 @@ export default function P2PMarketplacePage() {
                       <AvatarImage src={listing.user?.image} />
                       <AvatarFallback className="bg-gray-200 text-xs">{initials}</AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium text-gray-700">{listing.user?.name || "Anónimo"}</span>
+                    <span className="text-sm font-medium text-gray-700">{listing.user?.name || t("p2p.anonymous")}</span>
                   </div>
 
                   {/* Amount & Price */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-lg bg-gray-50 p-3">
                       <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
-                        <Coins className="h-3 w-3" /> Cantidad
+                        <Coins className="h-3 w-3" /> {t("p2p.quantity")}
                       </div>
-                      <p className="font-semibold text-gray-900">{formatNumber(listing.amount)} FLOW</p>
+                      <p className="font-semibold text-gray-900">{formatNumber(listing.amount, locale)} FLOW</p>
                       {(listing.minAmount || listing.maxAmount) && (
                         <p className="text-[10px] text-gray-400 mt-0.5">
-                          {listing.minAmount ? `Mín: ${formatNumber(listing.minAmount)}` : ""}
+                          {listing.minAmount ? `${t("p2p.min")}${formatNumber(listing.minAmount, locale)}` : ""}
                           {listing.minAmount && listing.maxAmount ? " · " : ""}
-                          {listing.maxAmount ? `Máx: ${formatNumber(listing.maxAmount)}` : ""}
+                          {listing.maxAmount ? `${t("p2p.max")}${formatNumber(listing.maxAmount, locale)}` : ""}
                         </p>
                       )}
                     </div>
                     <div className="rounded-lg bg-gray-50 p-3">
                       <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
-                        <DollarSign className="h-3 w-3" /> Precio
+                        <DollarSign className="h-3 w-3" /> {t("p2p.price")}
                       </div>
-                      <p className="font-semibold text-gray-900">{formatNumber(listing.price)} {listing.currency}</p>
+                      <p className="font-semibold text-gray-900">{formatNumber(listing.price, locale)} {listing.currency}</p>
                       <p className="text-[10px] text-gray-400 mt-0.5">
-                        Total: {formatNumber(total)} {listing.currency}
+                        {t("p2p.total")}{formatNumber(total, locale)} {listing.currency}
                       </p>
                     </div>
                   </div>
 
                   {/* Payment method */}
                   <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{PAYMENT_METHODS[listing.paymentMethod] || listing.paymentMethod}</span>
+                    <span>{t(`p2p.paymentMethods.${listing.paymentMethod}`) || listing.paymentMethod}</span>
                   </div>
 
                   {/* Description */}
@@ -451,11 +446,11 @@ export default function P2PMarketplacePage() {
                       disabled={cancelling === listing.id}
                     >
                       <Ban className="h-3.5 w-3.5 mr-1" />
-                      {cancelling === listing.id ? "Cancelando..." : "Cancelar anuncio"}
+                      {cancelling === listing.id ? t("p2p.cancelling") : t("p2p.cancelAd")}
                     </Button>
                   ) : (
                     <Button size="sm" className={`w-full ${isBuy ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"}`}>
-                      {isBuy ? "Vender a este usuario" : "Comprar a este usuario"}
+                      {isBuy ? t("p2p.sellToUser") : t("p2p.buyFromUser")}
                     </Button>
                   )}
                 </CardContent>
@@ -467,15 +462,15 @@ export default function P2PMarketplacePage() {
         <Card className="border-0 shadow-md bg-white">
           <CardContent className="py-16 text-center">
             <ArrowLeftRight className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 text-lg font-medium">No hay anuncios activos</p>
-            <p className="text-gray-400 text-sm mt-1">Sé el primero en publicar una oferta</p>
+            <p className="text-gray-500 text-lg font-medium">{t("p2p.noAds")}</p>
+            <p className="text-gray-400 text-sm mt-1">{t("p2p.beFirst")}</p>
             <Button
               size="sm"
               className="mt-4 bg-emerald-600 hover:bg-emerald-700"
               onClick={() => setCreateOpen(true)}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Crear anuncio
+              {t("p2p.createAd")}
             </Button>
           </CardContent>
         </Card>

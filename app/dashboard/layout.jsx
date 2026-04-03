@@ -11,37 +11,40 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { useLanguage } from "@/components/language-provider"
+import LanguageSwitch from "@/components/language-switch"
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname()
   const isMobile = useIsMobile()
   const [isOpen, setIsOpen] = useState(false)
   const { data: session } = useSession()
+  const { t } = useLanguage()
 
   const menuCategories = [
     {
-      title: "PRINCIPAL",
+      title: t("dashLayout.categories.main"),
       items: [
-        { title: "Panel", href: "/dashboard", icon: Home },
-        { title: "Marketplace P2P", href: "/dashboard/p2p-marketplace", icon: ArrowLeftRight },
-        { title: "Simulador SMS", href: "/dashboard/sms-simulator", icon: Smartphone },
-        { title: "Transacciones", href: "/dashboard/transactions", icon: CreditCard },
-        { title: "Usuarios SMS", href: "/dashboard/customers", icon: Users },
-        { title: "Staking", href: "/dashboard/staking", icon: BarChart3 },
+        { title: t("dashLayout.menu.panel"), href: "/dashboard", icon: Home },
+        { title: t("dashLayout.menu.marketplace"), href: "/dashboard/p2p-marketplace", icon: ArrowLeftRight },
+        { title: t("dashLayout.menu.smsSimulator"), href: "/dashboard/sms-simulator", icon: Smartphone },
+        { title: t("dashLayout.menu.transactions"), href: "/dashboard/transactions", icon: CreditCard },
+        { title: t("dashLayout.menu.smsCustomers"), href: "/dashboard/customers", icon: Users },
+        { title: t("dashLayout.menu.staking"), href: "/dashboard/staking", icon: BarChart3 },
       ],
     },
     {
-      title: "PAGOS",
+      title: t("dashLayout.categories.payments"),
       items: [
-        { title: "Pagos SMS", href: "/dashboard/sms-payments", icon: MessageSquare },
-        { title: "Billetera", href: "/dashboard/wallet", icon: Wallet },
+        { title: t("dashLayout.menu.smsPayments"), href: "/dashboard/sms-payments", icon: MessageSquare },
+        { title: t("dashLayout.menu.wallet"), href: "/dashboard/wallet", icon: Wallet },
       ],
     },
     {
-      title: "CUENTA",
+      title: t("dashLayout.categories.account"),
       items: [
-        { title: "Configuración", href: "/dashboard/settings", icon: Settings },
-        { title: "Perfil", href: "/dashboard/profile", icon: Users },
+        { title: t("dashLayout.menu.settings"), href: "/dashboard/settings", icon: Settings },
+        { title: t("dashLayout.menu.profile"), href: "/dashboard/profile", icon: Users },
       ],
     },
   ]
@@ -71,7 +74,7 @@ export default function DashboardLayout({ children }) {
             <AvatarFallback className="bg-blue-600 text-white text-sm font-bold">{userInitials}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">{session?.user?.name || "Usuario"}</p>
+            <p className="text-sm font-medium text-white truncate">{session?.user?.name || t("dashLayout.user")}</p>
             <p className="text-xs text-blue-300 truncate">{session?.user?.email}</p>
           </div>
         </div>
@@ -112,7 +115,7 @@ export default function DashboardLayout({ children }) {
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-blue-200 hover:bg-red-600/20 hover:text-red-300 transition-all duration-200 w-full"
         >
           <LogOut className="h-4 w-4" />
-          Cerrar sesión
+          {t("dashLayout.logout")}
         </button>
       </div>
     </>
@@ -143,9 +146,10 @@ export default function DashboardLayout({ children }) {
         <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-40">
           <div className="md:hidden w-10" />
           <h2 className="text-lg font-semibold text-gray-800 hidden md:block">
-            {menuCategories.flatMap(c => c.items).find(i => i.href === pathname)?.title || "Panel"}
+            {menuCategories.flatMap(c => c.items).find(i => i.href === pathname)?.title || t("dashLayout.menu.panel")}
           </h2>
           <div className="flex items-center gap-3">
+            <LanguageSwitch />
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5 text-gray-500" />
               <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
